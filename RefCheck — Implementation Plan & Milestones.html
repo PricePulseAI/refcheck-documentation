@@ -1,0 +1,672 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <!-- Strict CSP for a self-contained doc with inline CSS/JS allowed -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — Implementation Plan &amp; Milestones (v1.0)</title>
+  <meta name="description" content="RefCheck Implementation Plan: Agile project timeline, team responsibilities, key milestones, and deliverables for launching the v1.0 reference check platform.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — Implementation Plan &amp; Milestones <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">Agile</span>
+        <span class="chip">Timeline</span>
+        <span class="chip">Deliverables</span>
+        <span class="chip">Team Roles</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#approach-timeline">Approach &amp; Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="#team-responsibilities">Team &amp; Responsibilities</a></li>
+          <li class="nav-item"><a class="nav-link" href="#sprint-plan">Sprint Plan (Weeks 1–4)</a></li>
+          <li class="nav-item"><a class="nav-link" href="#milestones">Milestones &amp; Deliverables</a></li>
+          <li class="nav-item"><a class="nav-link" href="#quality-monitoring">Quality &amp; Monitoring</a></li>
+          <li class="nav-item"><a class="nav-link" href="#risk-contingency">Risks &amp; Contingency</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- Approach & Timeline -->
+        <section id="approach-timeline" class="section">
+          <div class="section-header">
+            <div class="icon">AT</div>
+            <div>
+              <h1 class="section-title">Approach &amp; Timeline</h1>
+              <p class="section-subtitle">Agile development in rapid sprints</p>
+            </div>
+          </div>
+          <p>We will employ an **agile, time-boxed approach** to deliver RefCheck v1.0. The project is structured into a short series of sprints aimed at achieving a Minimum Viable Product (MVP) within approximately 4–6 weeks of focused development. This fast-paced timeline aligns with the goal of reaching a functional beta that can be tested with real users ASAP, allowing for quick feedback and iteration.</p>
+          <p><strong>Project Start:</strong> Immediately upon approval, the team will set up the development environment, finalize requirements into user stories (see “User Stories &amp; Feature Breakdown”), and prioritize the backlog for the first sprint. The **official kickoff** is Day 1 of Week 1, where we ensure all tools (repo, task tracker, CI pipeline) are ready.</p>
+          <p><strong>Sprint Structure:</strong> We plan weekly sprints (Monday–Friday) with a demo or review at the end of each week. Key activities are:
+            </p><ul>
+              <li><em>Planning:</em> Every Monday morning, a brief planning session confirms the sprint backlog (which stories/bugs to tackle).</li>
+              <li><em>Daily Stand-ups:</em> Quick sync each day to surface blockers and adjust if needed. Given the tight schedule, we emphasize rapid communication (via Slack, etc.).</li>
+              <li><em>Friday Demos:</em> End of week, we will have a sprint review showing what’s working (e.g., by Week 2 we expect a working reference form and basic dashboard). Stakeholders (product lead, perhaps a pilot user) attend to give feedback. We also do a retrospective to improve team process for the next sprint.</li>
+            </ul>
+          <p></p>
+          <p><strong>Overall Timeline:</strong> For v1.0 MVP, the high-level schedule is:
+            </p><ul>
+              <li><strong>Week 1:</strong> Backend &amp; Frontend setup, core models and basic flows (create check, send invite, simple form) – essentially making the skeleton of the app functional.</li>
+              <li><strong>Week 2:</strong> Conversational UI polish, AI integration (sentiment analysis, summary generation), and reference report generation. Also begin integration hooks (like preparing API endpoints for webhooks).</li>
+              <li><strong>Week 3:</strong> Expand features – dashboard enhancements (status tracking, reminders), team collaboration basics (at least 2 user roles functioning), and thorough testing of the end-to-end flow. Start integration testing with ATS (if using Zapier, configure and test a sample Zap).</li>
+              <li><strong>Week 4:</strong> Buffer for bug fixes, UX refinement, security review, and QA. Also implement any deferred P1 items necessary for launch (e.g., PDF export, email template finalization). By end of Week 4, aim to have a release candidate deployed for a small beta (perhaps internal or friendly testers).</li>
+            </ul>
+            If extra time (weeks 5–6) is available (depending on team size and initial velocity), it will be used for iterative improvements based on beta feedback, additional test coverage, and preparing support materials (like user guide, training if needed).
+          <p></p>
+          <p>Throughout, we keep an eye on **scope management**: any feature not critical for the core workflow may be labeled Post-MVP (for example, fancy analytics or multilanguage support) and not derail the committed timeline. The milestones below detail specific target outcomes for each week, ensuring we stay on track for a timely delivery.</p>
+        </section>
+        <!-- Team & Responsibilities -->
+        <section id="team-responsibilities" class="section">
+          <div class="section-header">
+            <div class="icon">TR</div>
+            <div>
+              <h1 class="section-title">Team &amp; Responsibilities</h1>
+              <p class="section-subtitle">Who's doing what</p>
+            </div>
+          </div>
+          <p>Our project team is small and cross-functional, enabling rapid communication and decision-making. Key roles and their responsibilities are outlined here. Note that team members will collaborate closely; while roles have primary focus areas, some overlap (e.g., developers assist in testing, PM in design feedback) is expected given the startup-style environment.</p>
+          <ul>
+            <li><strong>Product Manager (PM):</strong> Oversees the product vision and ensures that what is built aligns with user needs and business goals. For this project, the PM (Alice) will refine user stories, handle scope trade-offs, and be the point of contact for stakeholder feedback (like beta users or senior management). She runs sprint demos and collects user feedback for iteration. The PM also coordinates go-to-market readiness (like helping prepare any needed training material or announcements for launch).</li>
+            <li><strong>UX/UI Designer:</strong> Responsible for delivering the high-fidelity mockups and style guides (as seen in the Design Spec doc). In this timeline, our designer (Brian) front-loaded work to have core screens ready by Week 0/1. During development, Brian will be on hand to adjust designs based on technical feedback, create any new assets (icons, email template graphics), and review implementations for fidelity. He also ensures accessibility standards are met in the design.</li>
+            <li><strong>Front-end Developer:</strong> Focuses on implementing the user interface in React (or Bubble if no-code path, but we've assumed code). This includes building components for the dashboard, chat interface, and integrating API calls. Our front-ender (Chloe) will work on making the UI responsive and pixel-perfect per the design spec. She will also write unit tests for front-end logic (like form validation) and fix any UI bugs found in testing. Collaboration with the designer is tight, and with backend for hooking up data.</li>
+            <li><strong>Back-end Developer:</strong> Builds the server-side application (Node/Express, database schemas) and integrates external services (email API, AI, webhooks). The back-ender (Devon) ensures APIs are secure and efficient, implements business logic (e.g., when to send reminders, how to aggregate responses), and sets up the database with encryption as required. Devon also implements the automated tests for server logic and potentially load tests critical functions (like generating summaries in batch) to ensure performance.</li>
+            <li><strong>QA Engineer:</strong> Given the short timeline, we might not have a dedicated QA initially; the tasks fall on the developers and PM to test in each sprint. However, if QA support (Erin) is available even part-time, she will create a test plan (see “Testing &amp; QA” doc) and perform end-to-end testing on staging environment by Week 3 and 4. She focuses on edge cases, cross-browser testing (does the chat form work on mobile Safari, etc.), and ensures that all acceptance criteria in user stories are met. Any critical bugs are fed immediately into the current or next sprint for fixing.</li>
+            <li><strong>DevOps Engineer:</strong> We may use a developer in dual role to handle environment setup. Responsibilities include configuring CI/CD (so each commit can be deployed to a test environment), setting up the production environment (ensuring SSL, domain config, scaling rules), and monitoring tools. If no separate person, Devon (backend) will lead these tasks with help from Chloe (especially for front-end build pipeline). This role ensures we can deploy the app easily for beta and GA launch, and that logs/monitoring are in place (for error tracking, etc.).</li>
+          </ul>
+          <p>Communication among the team is key. We’ll use a Slack channel for daily coordination and a shared Jira (or Trello) board for tracking tasks and stories. The PM ensures that board is up-to-date and holds a “stand-up” style check each day. Code is hosted on GitHub, and we enforce code reviews (e.g., Devon reviews front-end PRs and vice versa) to maintain quality and share knowledge. This small, dedicated team will work in unison to hit our milestones.</p>
+        </section>
+        <!-- Sprint Plan (Weeks 1-4) -->
+        <section id="sprint-plan" class="section">
+          <div class="section-header">
+            <div class="icon">SP</div>
+            <div>
+              <h1 class="section-title">Sprint Plan (Weeks 1–4)</h1>
+              <p class="section-subtitle">Detailed breakdown of tasks by week</p>
+            </div>
+          </div>
+          <p>Below is a week-by-week breakdown of the development sprints, including key tasks and goals for each. This aligns with the overall timeline discussed earlier, but here we enumerate specific work items to be accomplished. Each week ends with deliverables that build upon the previous week’s progress, culminating in a feature-complete MVP by end of Week 4.</p>
+          <div class="grid auto">
+            <div class="card">
+              <h4>Week 1 – Foundations &amp; Core Workflow</h4>
+              <ul>
+                <li>🎨 **Front-end setup:** Initialize React project (or Bubble environment), implement the basic layout (dashboard shell, nav, placeholder for content).</li>
+                <li>🔧 **Back-end setup:** Scaffold Node/Express project, connect to PostgreSQL, define schema for users, candidates, references, responses as per data model. Implement user auth (simple email-password login for now, and seed an admin user).</li>
+                <li>✉️ **Invite flow (basic):** Develop the form for creating a reference check (front-end) and the corresponding API endpoint. When a recruiter enters candidate and references and hits “Send”, backend creates records and sends an actual email via SendGrid to those references (using a rudimentary email template).</li>
+                <li>💬 **Reference form (basic):** Create a very simple reference form page that a reference lands on from the email link. For Week 1, it can be non-chatty (all questions on one page or one by one without fancy AI follow-ups). The goal is end-to-end: reference can submit answers, and those get saved in DB.</li>
+                <li>✅ **End-to-end demo:** By Friday, we should be able to demo: recruiter logs in, creates a check (maybe via Postman or a bare-bones UI), a reference receives an email and submits feedback, and recruiter can see that feedback in some form (even if just in the database or a basic page). This proves the core pipeline works.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Week 2 – Conversational UI &amp; AI Integration</h4>
+              <ul>
+                <li>💻 **Chat-style Form:** Enhance the reference interface to be conversational. Implement showing one question at a time with the assistant persona. Add front-end logic for “typing…” simulation and allowing skip or partial save. Ensure mobile responsiveness here.</li>
+                <li>🗣️ **Voice-to-text (Stretch):** If feasible, enable the microphone input for answers. Use the Web Speech API for browsers that support it. At least test on Chrome to ensure references can speak answers.</li>
+                <li>🤖 **AI summary backend:** Integrate with OpenAI API. Develop server-side function to compile reference answers and send prompt for a summary &amp; sentiment analysis. On receiving response, parse it and store summary and flags in the report table.</li>
+                <li>⚡ **Real-time processing:** Implement that when a reference submits their last answer, the system automatically triggers summary generation (or schedules it). The recruiter’s view (if open) either auto-refreshes after a short delay or shows a “Report generating...” status until ready.</li>
+                <li>📊 **Report page (initial):** Create a basic report view for recruiters: list all questions and answers and display the AI summary on top. Apply simple formatting (we’ll refine in Week 3). Also, include basic sentiment icons or highlights for any negative words (e.g., bold/italic or colored text as a placeholder for final design).</li>
+                <li>🔗 **Webhooks scaffold:** Set up the structure for outgoing webhooks (no UI yet, but backend can post to a test URL after report completion to prepare for integration testing in Week 3). Also, stub an API endpoint for integration triggers (like a no-auth endpoint we can call to simulate ATS trigger, for testing).</li>
+                <li>🧪 **Midpoint testing:** QA/dev to test full scenarios: multiple references, skip question scenario, etc. Fix any glaring bugs from Week 1 parts (like email deliverability issues or form edge cases).</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Week 3 – Feature Completion &amp; Polish</h4>
+              <ul>
+                <li>📋 **Dashboard &amp; status:** Implement the recruiter dashboard listing all reference checks with their status. Include visual indicators (e.g., “2/3 complete”). Make items clickable to view detail. Add ability to send reminder emails (backend endpoint + front-end button).</li>
+                <li>👥 **User roles &amp; sharing:** Implement viewer role basics – invite a user as viewer and ensure they can only see reports (perhaps use a simple approach like hide create buttons for them). Also, add the “Copy share link” functionality on a report and track its usage (log when opened).</li>
+                <li>📑 **PDF Export:** Use a library (like Puppeteer or an HTML-to-PDF service) to generate PDF of a report. Ensure layout is print-friendly. Hook up the “Download PDF” button on report page to this service.</li>
+                <li>🔄 **Integration tests:** Using a Zapier or script, test that our webhooks and API can integrate: e.g., simulate ATS sending a candidate to RefCheck (perhaps using Postman) and see it create properly; simulate our webhook by pointing it to a requestbin and verifying data. Adjust payloads as needed.</li>
+                <li>🔒 **Security review:** This week, do a pass for security: ensure forms sanitize inputs (no XSS), secure tokens in URLs are sufficiently random and single-use, and all API routes check auth. If possible, have a third-party or another team member attempt a quick pen-test on our staging environment.</li>
+                <li>🎨 **UI fine-tuning:** Address any UI mismatches from design spec. This includes proper loading spinners, nice transitions (smooth scroll in chat, maybe a gentle highlight when new answer appears), and consistent spacing/fonts. Ensure modals (like confirm dialogs for skip or cancel) are styled well.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Week 4 – Hardening &amp; Beta Launch</h4>
+              <ul>
+                <li>🐞 **Bug Fixing:** Tackle the bug list aggressively. By now, internal testing likely revealed issues (e.g., email going to spam, a crash if reference list is empty, etc.). Fix all high and medium priority bugs. Low priority cosmetic issues are addressed if time permits.</li>
+                <li>🔭 **Cross-browser/device QA:** Test the application on: Chrome, Firefox, Safari, Edge (latest versions), plus a couple of real mobile devices (iOS Safari, Android Chrome). Ensure major functionality (especially the reference chat and the dashboard) works everywhere. Any browser-specific fixes are applied (with graceful degradation if needed for older IE – though target modern browsers primarily).</li>
+                <li>🚀 **Performance tuning:** Run a small load test: simulate 50 reference invites at once, or 5 references submitting simultaneously. Monitor server response times and memory. Optimize queries or add indexes if things are slow (for instance, ensure the dashboard query is indexed by company and status). Also, ensure the AI summary call is handled – e.g., if 10 come in parallel, we queue or throttle appropriately to avoid hitting API rate limits.</li>
+                <li>📖 **Documentation &amp; Handoff:** Finalize user-facing documentation like a one-page “Quick Start Guide” for users (recruiters) if needed. Also compile developer docs: API docs finalized (from previous doc), any devops README on how to deploy. This is important if the product will be maintained or deployed by another team after launch.</li>
+                <li>🎉 **Beta Launch:** By mid-to-late week, deploy the app to production (behind an invite-only or limited access). Our pilot recruiters (maybe internal HR or a friendly client) will use it on a real hire. The team will support them, collecting feedback and watching for any errors in logs. We aim to have at least 2–3 reference checks run through the system in beta by week’s end to validate end-to-end in a real scenario.</li>
+                <li>🔄 **Iteration Planning:** Based on beta feedback, the team will catalog any quick improvements or necessary fixes. Depending on severity, we might do a quick Week 5 patch release. Otherwise, these go into the backlog for post-MVP enhancements. We ensure the MVP meets acceptance criteria and is stable, even if some non-critical suggestions are deferred.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!-- Milestones & Deliverables -->
+        <section id="milestones" class="section">
+          <div class="section-header">
+            <div class="icon">MS</div>
+            <div>
+              <h1 class="section-title">Milestones &amp; Deliverables</h1>
+              <p class="section-subtitle">Tracking progress checkpoints</p>
+            </div>
+          </div>
+          <p>To monitor progress and keep stakeholders informed, we’ve set the following key milestones. Each milestone corresponds to a tangible output or event, which serves as a checkpoint for the project’s health and readiness to proceed to the next phase. These are aligned with the sprint plan, but a milestone might encompass outcomes of multiple sprints.</p>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th>Milestone</th><th>Target Date</th><th>Deliverables/Criteria</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>MVP Feature Complete</strong></td>
+                  <td>End of Week 3</td>
+                  <td>All core features implemented: inviting references, reference chat form with AI summary, recruiter dashboard with status tracking, basic sharing. At this point, no major functionality is missing (only polish and bug fixes remain). Internal demo shows a complete workflow with no stubs.</td>
+                </tr>
+                <tr>
+                  <td><strong>Beta Launch</strong></td>
+                  <td>Middle of Week 4</td>
+                  <td>RefCheck deployed to live (or staging) environment for beta users. At least one real hiring process is initiated through the system by an early user. The system handles real data and external email sends to non-team individuals successfully. Beta feedback collection begins.</td>
+                </tr>
+                <tr>
+                  <td><strong>v1.0 Public Release</strong></td>
+                  <td>Week 6 (tentative)</td>
+                  <td>After incorporating critical beta feedback and verifying stability, we lift the invite-only restriction (if any) and officially announce the product. Deliverables: Polished UI, all known high-priority bugs fixed, product documentation (FAQs, support contacts) in place, and GTM materials ready (website updated with RefCheck info, etc.).</td>
+                </tr>
+                <tr>
+                  <td><strong>Post-Launch Review</strong></td>
+                  <td>+1 Month after release</td>
+                  <td>A retrospective analysis of KPIs: adoption (# of reference checks run), turnaround times, any production issues. Team compiles a report and list of next-phase feature recommendations (e.g., nice-to-have items or scale improvements) based on real usage data. This helps inform subsequent roadmap.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted">*Dates are targets and assume no major roadblocks. The team will update stakeholders immediately if any milestone is at risk, and has a contingency plan (see Risks &amp; Contingency) to adjust if needed.*</p>
+        </section>
+        <!-- Quality & Monitoring -->
+        <section id="quality-monitoring" class="section">
+          <div class="section-header">
+            <div class="icon">QM</div>
+            <div>
+              <h1 class="section-title">Quality &amp; Monitoring</h1>
+              <p class="section-subtitle">Testing, CI/CD, and performance checks</p>
+            </div>
+          </div>
+          <p>Ensuring we deliver a quality product is critical given the tight timeline. The team integrates QA and monitoring practices into each sprint rather than leaving them to the end.</p>
+          <ul>
+            <li><strong>Test Strategy:</strong> We follow a “test early, test often” approach. Developers write unit tests for critical functions (e.g., a function that parses AI feedback for flags, or the API that calculates reference completion percentage). We also create a small set of end-to-end tests using a tool like Cypress or Postman collections to automatically go through a full reference check flow (perhaps simulating a reference filling the form via direct API calls). This helps catch regressions quickly. See the separate “Testing &amp; QA” document for details on test cases and coverage.</li>
+            <li><strong>Continuous Integration (CI):</strong> Every code commit triggers an automated build and test run (set up via GitHub Actions or similar). If any test fails, or if the build doesn’t pass (e.g., linting issues), the team addresses it before merging. This CI pipeline ensures that our main branch is always in a deployable state, which is crucial for rapid iteration and confidence in weekly demos.</li>
+            <li><strong>Continuous Deployment (CD):</strong> We plan to push to a staging environment at the end of each sprint (if not more often). Staging will mirror production config (including AI API keys in test mode, and using a test email domain to avoid spamming real people during QA). This environment is where the PM/QA does acceptance testing against the user stories. For beta, we’ll promote the staging deployment to production once it passes all checks.</li>
+            <li><strong>Performance Monitoring:</strong> We include basic monitoring from day 1. For example, we wrap critical API calls with logging for response time. We’ll set up an uptime monitor on the reference form endpoint and the main dashboard (using something like Pingdom or a simple cron hitting the health check). If any downtime or slow response is detected, the team gets alerted on Slack/email. Additionally, we use error tracking (like Sentry) to catch runtime exceptions in both front-end and back-end. This way, even during beta, if a user encounters a glitch, we know about it and have a stack trace to debug.</li>
+            <li><strong>Security &amp; Privacy Checks:</strong> Quality isn’t just functionality – security and compliance are quality aspects too. We will run a vulnerability scan (using an npm tool for known package vulns and maybe ZAP for basic web vuln scanning on staging). We double-check that sensitive data (like reference answers) doesn’t appear in client-side logs or URLs. And we ensure all external scripts or resources loaded in the app (fonts, etc.) are either whitelisted or internal to avoid any supply chain issues (the CSP meta-policy above helps with that by restricting sources).</li>
+            <li><strong>User Acceptance Testing (UAT):</strong> Our beta phase effectively serves as UAT. We’ll provide the beta testers with a structured way to report issues (likely a shared Google Sheet or Trello board for feedback items). The team triages these immediately. We treat any issue that blocks the reference check flow as a fire to be fixed within 24 hours. Other UX improvements are noted for post-launch if they’re not quick wins. Having UAT in a real context gives us confidence for broader launch.</li>
+          </ul>
+          <p>By embedding these quality practices, we aim to catch defects early and often, preventing a nasty surprise on launch day. Monitoring in production (even during beta) ensures we’re proactive – often fixing things before users even notice. Given the nature of our product (it touches external folks via email and collects personal feedback), this diligence is important for building trust and reliability from the get-go.</p>
+        </section>
+        <!-- Risks & Contingency -->
+        <section id="risk-contingency" class="section">
+          <div class="section-header">
+            <div class="icon">RC</div>
+            <div>
+              <h1 class="section-title">Risks &amp; Contingency</h1>
+              <p class="section-subtitle">Preparing for the unexpected</p>
+            </div>
+          </div>
+          <p>No project is without risks, especially on a compressed timeline. We’ve identified key risks and have contingency plans for each:</p>
+          <ul>
+            <li><strong>Scope Creep / Overload:</strong> With many desired features, there's a risk of trying to do too much in v1. We mitigate this by strictly adhering to MVP definitions (user stories marked P0/P1). PM will defer any new ideas that emerge (e.g., “Wouldn’t it be cool if...”) to the backlog for post-launch. If a feature is taking too long, we’ll consider scaling it back or using a simpler approach (for instance, if the AI integration ran into issues, we could launch with a simpler rule-based analysis as placeholder rather than delay launch).</li>
+            <li><strong>External Service Dependency:</strong> If the OpenAI API has outages or the email service hits a quota, our core flows could stall. Our contingency: implement caching for AI (so we don’t call repeatedly for same text if failed, we try a few minutes later), and have a mode to present reports without AI summary if needed (ensuring recruiters still see raw answers). For email, we have a secondary SMTP service configured (maybe AWS SES as backup). We also limit the scope of any one provider by abstracting calls – if OpenAI is too unstable, we could swap to an alternative model quickly (with possibly slightly reduced smarts) as an update.</li>
+            <li><strong>Tight Timeline Issues:</strong> If we find by mid-Week 3 that we’re behind (e.g., perhaps the chat UI took much longer), we’ll re-evaluate launch date. Options include: reducing supported browsers (maybe officially beta doesn’t support IE11 to save bugfix time), enlisting an extra dev resource for a week if available, or cutting a non-essential feature (e.g., postpone multi-user support, launching for single-user accounts only if RBAC isn’t ready). The PM and Tech Lead will assess and get stakeholder agreement on any descoping necessary to hit a reasonable launch. It’s better to launch a solid core product a week late or with fewer features than a buggy one on time.</li>
+            <li><strong>Data Breach/Privacy Bug:</strong> A severe risk would be if references’ confidential responses leak to the wrong person. We treat any security bug as show-stopper. That’s why we invest in the security reviews and are prepared to delay launch if a critical vulnerability is found last-minute. We also have a plan: if something does go wrong in production (e.g., a reference report is accessible without auth due to some misconfig), we have an emergency protocol to shut off external access (maybe disable share links temporarily) and patch immediately. Also, logging and audit trails help us see if any data was accessed improperly to notify clients if required.</li>
+            <li><strong>User Adoption Risk:</strong> This is more post-launch, but if beta feedback says “It’s not saving me time” or references find the chat confusing, that’s a product risk. Our mitigation was building a demo mode and being in constant contact with beta users. If we discover, for example, references don’t like the chat and prefer a normal form, we could quickly introduce a “simple form” option. The architecture is flexible to adjust the UX without rewriting core logic. Essentially, we remain ready to iterate on UX elements within weeks post-launch if it means driving adoption.</li>
+          </ul>
+          <p>Regular check-ins on these risks will be part of our weekly retrospective. By anticipating problems and having fallback plans, we aim to avoid firefighting in crisis mode. Of course, unknown risks may arise, but a nimble team and good communication are our safety net. Everyone is encouraged to raise a flag the moment a risk is spotted (no silent struggling on a blocker), so the team can swarm on a solution together. This collaborative, transparent approach is our best contingency tool of all.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#approach-timeline">Approach &amp; Timeline</a></li>
+        <li class="nav-item"><a class="nav-link" href="#team-responsibilities">Team &amp; Responsibilities</a></li>
+        <li class="nav-item"><a class="nav-link" href="#sprint-plan">Sprint Plan (Weeks 1–4)</a></li>
+        <li class="nav-item"><a class="nav-link" href="#milestones">Milestones &amp; Deliverables</a></li>
+        <li class="nav-item"><a class="nav-link" href="#quality-monitoring">Quality &amp; Monitoring</a></li>
+        <li class="nav-item"><a class="nav-link" href="#risk-contingency">Risks &amp; Contingency</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>

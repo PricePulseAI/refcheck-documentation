@@ -1,0 +1,810 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — API &amp; Integration Guide (v1.0)</title>
+  <meta name="description" content="RefCheck API and Integration documentation: endpoints, webhooks, and examples for integrating RefCheck into other systems or extending its functionality.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — API &amp; Integration Guide <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">REST API</span>
+        <span class="chip">Webhooks</span>
+        <span class="chip">ATS Integration</span>
+        <span class="chip">Zapier</span>
+        <span class="chip">Developer Guide</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#api-overview">API Overview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#authentication">Authentication &amp; Security</a></li>
+          <li class="nav-item"><a class="nav-link" href="#endpoints">REST API Endpoints</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#endpoint-create">Create Reference Check</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#endpoint-submit">Submit Reference Feedback</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#endpoint-report">Retrieve Report &amp; Status</a></li>
+          <li class="nav-item"><a class="nav-link" href="#webhooks">Webhooks &amp; Callbacks</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#ats-integration">ATS Integration Example</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#zapier-integration">Zapier &amp; Other Tools</a></li>
+          <li class="nav-item"><a class="nav-link" href="#data-schemas">Data Schema &amp; Examples</a></li>
+          <li class="nav-item"><a class="nav-link" href="#appendix-analysis">Appendix: Sentiment Analysis Example</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- API Overview -->
+        <section id="api-overview" class="section">
+          <div class="section-header">
+            <div class="icon">API</div>
+            <div>
+              <h1 class="section-title">API Overview</h1>
+              <p class="section-subtitle">Integrating RefCheck into your workflow</p>
+            </div>
+          </div>
+          <p>RefCheck provides a RESTful JSON API that allows developers to integrate its reference-checking capabilities with other systems (like Applicant Tracking Systems or custom HR portals) and to automate key steps. The API supports creating reference checks, listing their statuses, retrieving completed reports, and receiving callbacks when checks are done. By using these endpoints and webhooks, an organization can seamlessly plug RefCheck into their existing hiring workflow:
+          </p>
+          <ul>
+            <li>**Automate reference requests:** For example, when a candidate in your ATS moves to a “Reference Check” stage, you can have a trigger to call RefCheck’s API to create a new reference check for them, sending out emails instantly.</li>
+            <li>**Retrieve results programmatically:** Instead of manually logging into RefCheck to view outcomes, your system can pull the summarized report or raw feedback via the API and display it in your internal dashboard or attach it to the candidate’s ATS profile.</li>
+            <li>**Receive push notifications:** Using webhooks, RefCheck can notify your application the moment all references have submitted feedback (or if a reference declines or a deadline passes), so you can take immediate action (for instance, automatically move the candidate’s stage forward or alert a recruiter).</li>
+          </ul>
+          <p>The API is organized around familiar REST principles. It uses predictable URLs and standard HTTP response codes to indicate errors or success. Request and response bodies are in JSON format. If you’ve used modern web APIs, integrating with RefCheck should feel straightforward. In this guide, we’ll cover how to authenticate with the API, describe the key endpoints and their usage with examples, and explain how to set up webhooks for real-time integration with external systems like ATS or messaging tools.</p>
+          <p>**Base URL:** All API requests are made to a base endpoint, for example <code>https://api.refcheck.com/v1/</code> (for production). The examples below assume this base. We version our API (v1 in this case) to allow future enhancements without breaking existing integrations. Wherever possible, new features will be added in a backward-compatible way, and any breaking changes would result in a new version.</p>
+        </section>
+        <!-- Authentication & Security -->
+        <section id="authentication" class="section">
+          <div class="section-header">
+            <div class="icon">AU</div>
+            <div>
+              <h1 class="section-title">Authentication &amp; Security</h1>
+              <p class="section-subtitle">Secure access to the RefCheck API</p>
+            </div>
+          </div>
+          <p>The RefCheck API uses token-based authentication over HTTPS. Only authorized users or systems should be able to create reference checks or read their results. There are two ways to authenticate, depending on your integration scenario:</p>
+          <ul>
+            <li><strong>User Session Token (OAuth/JWT):</strong> If you’re calling the API from a logged-in context (e.g., your own front-end after the recruiter has logged in, or from your server on behalf of a user), you will include an Authorization header with a bearer token. For instance, after login, the recruiter’s session may provide a JWT token. Use it as:
+              <br><code>Authorization: Bearer <span class="small">{your_token}</span></code><br>
+              The token inherently carries the user’s identity and permissions. The API will determine which company’s data the user can access based on it. This approach is typically used if RefCheck is integrated within your web app and uses RefCheck’s built-in authentication or SSO.</li>
+            <li><strong>API Key (Service-to-Service):</strong> For server-to-server integrations or background services (like an ATS webhook calling RefCheck), you can use a static API key. You can obtain an API key from the RefCheck admin settings (or it can be provided during onboarding). This key is specific to your company account and has predefined privileges. Include it similarly:
+              <br><code>Authorization: Bearer <span class="small">{your_api_key}</span></code><br>
+              Since API keys grant broad access, treat them like passwords: store them securely (e.g., in environment variables or a secrets manager, not hard-coded), and transmit only over HTTPS. You can also restrict their usage (for example, some keys can be set to read-only if needed).
+            </li>
+          </ul>
+          <p>All API calls **must** be made over HTTPS. The server will reject any request made over an insecure channel to protect data in transit. Ensure your HTTP client is configured to follow redirects and use TLS 1.2 or above.</p>
+          <p>For write operations (POST, PUT, DELETE requests), we implement CSRF protection when calls originate from a web browser session. However, in most integration cases you’ll be calling the API from a backend service or script, in which CSRF doesn’t apply. Your main responsibility is protecting the auth token or API key and including it correctly.</p>
+          <p>Each API request will be evaluated for authorization: the token or key provided must belong to a user or account with rights to the resource it’s trying to access. For example, if a token from Company A tries to fetch a report belonging to Company B, the API will respond with HTTP 403 Forbidden. This multi-tenant security model ensures data isolation between organizations using RefCheck.</p>
+          <p><strong>Response Codes:</strong> On authentication failure (e.g., missing/invalid token), the API returns a 401 Unauthorized. If the token is valid but not allowed to access a resource, 403 Forbidden is returned. Expired tokens also lead to 401, so be prepared to refresh tokens if using OAuth. Successful calls typically return 200 (or 201 Created for creation operations). We’ll note specific codes in the endpoint descriptions below.</p>
+        </section>
+        <!-- REST API Endpoints -->
+        <section id="endpoints" class="section">
+          <div class="section-header">
+            <div class="icon">RE</div>
+            <div>
+              <h1 class="section-title">REST API Endpoints</h1>
+              <p class="section-subtitle">Key operations for reference checking</p>
+            </div>
+          </div>
+          <p>Below are the primary endpoints of the RefCheck API, along with explanations and example requests/responses. Using these, you can manage the entire reference check lifecycle programmatically:</p>
+          <ul>
+            <li><strong>Create a Reference Check:</strong> Start a new reference checking process for a candidate by providing their details and references. This triggers RefCheck to send out questionnaires to those references.</li>
+            <li><strong>Submit Reference Feedback:</strong> (Usually done by the reference via the secure link, but can also be done via API for testing or if building a custom reference input form.) Each reference has a unique URL or token to submit their answers, which can be emulated via API.</li>
+            <li><strong>Retrieve Results:</strong> Once references respond, you can fetch the compiled report or interim raw answers via API. This allows your system to know when all feedback is in and to access the content for display or further processing.</li>
+          </ul>
+          <p>All endpoints live under the <code>/api/v1/</code> prefix (assuming the base URL as described). Data is sent and received as JSON. You should include <code>Content-Type: application/json</code> in the header for any request with a body. The examples below illustrate typical usage.</p>
+        </section>
+        <!-- Create Reference Check -->
+        <section id="endpoint-create" class="section">
+          <h2>Create Reference Check <span class="small">(POST /reference-checks)</span></h2>
+          <p>Use this endpoint to initiate a new reference check for a candidate. This typically happens when a candidate reaches the stage where you want to collect references. You’ll provide candidate information, their reference contacts, and optionally specify which question template to use. The response will confirm creation and return an ID for tracking.</p>
+          <div class="alert info">
+            <div class="dot" aria-hidden="true">i</div>
+            <div><strong>Note:</strong> Before calling this, ensure the candidate has consented to reaching out to these references, as per privacy regulations. RefCheck does not automatically notify candidates; managing consent is up to your workflow.</div>
+          </div>
+          <h4>Request</h4>
+          <div class="code-head"><span>Example: Create Reference Check</span><span class="code-lang">HTTP</span></div>
+<pre><code>POST /api/v1/reference-checks HTTP/1.1
+Host: api.refcheck.com
+Authorization: Bearer <span>&lt;api_token&gt;</span>
+Content-Type: application/json
+
+{
+  "candidate": {
+    "name": "Alice Johnson",
+    "role": "Customer Support Lead"
+  },
+  "references": [
+    { "name": "Bob Manager", "email": "bob@example.com", "relation": "Former Supervisor" },
+    { "name": "Carol Coworker", "email": "carol@example.com", "relation": "Colleague" }
+  ],
+  "template_id": "template_standard_01",
+  "callback_url": "https://yourats.com/webhooks/refcheck-done"
+}</code></pre>
+          <p>In this example, we create a reference check for candidate Alice Johnson, applying for Customer Support Lead. We provide two references (Bob and Carol) with their emails and relationship to Alice. The <code>template_id</code> specifies which set of questions to use (here we use a standard template). The <code>callback_url</code> is optional – if provided, RefCheck will POST to this URL when the reference check is complete (useful for webhooks, described later).</p>
+          <p>The API will immediately send out emails (and/or SMS if enabled) to the listed references with secure links for the questionnaire. It will also schedule automatic reminders as configured. The request should include all intended references; if you need to add another later, you would call a different endpoint (or re-invoke this one with an update parameter, if supported).</p>
+          <h4>Response</h4>
+          <p>If successful, the API returns <strong>201 Created</strong> along with a JSON body containing the new reference check’s details. For example:</p>
+          <div class="code-head"><span>Response Body</span><span class="code-lang">JSON</span></div>
+<pre><code>{
+  "reference_check_id": "rc_123456",
+  "candidate": {
+    "name": "Alice Johnson",
+    "role": "Customer Support Lead"
+  },
+  "references": [
+    { "name": "Bob Manager", "email": "bob@example.com", "status": "invited" },
+    { "name": "Carol Coworker", "email": "carol@example.com", "status": "invited" }
+  ],
+  "template_id": "template_standard_01",
+  "created_at": "2025-08-01T14:30:00Z",
+  "status": "in_progress"
+}</code></pre>
+          <p>The response echoes back the key information, including a generated <code>reference_check_id</code> that you’ll use to query status or results later. Each reference in the array now has a <code>status</code> (initially “invited”). As references respond, their statuses will change (e.g., to “completed”), which you can fetch via the GET status endpoint.</p>
+          <p>If the request is malformed or missing required fields, you’ll get a <code>400 Bad Request</code> with an error message. For example, if an email address is badly formatted or the template_id is invalid, the error JSON will describe the issue. In case of an authentication problem (e.g., missing or wrong token), expect a 401.</p>
+        </section>
+        <!-- Submit Reference Feedback -->
+        <section id="endpoint-submit" class="section">
+          <h2>Submit Reference Feedback <span class="small">(POST /references/{token}/responses)</span></h2>
+          <p>This endpoint allows submitting answers for a reference questionnaire. In practice, references fill out the form via the link they receive (which is an interactive form backing onto this endpoint). However, for testing or if building a custom interface, you can POST answers directly. Each reference entry has a unique token (or embedded in their link URL) that identifies the reference and associated candidate.</p>
+          <p><strong>Endpoint:</strong> <code>POST /api/v1/references/{reference_token}/responses</code></p>
+          <p>The request body should contain the answers, usually mapped by question ID or text. If using our standard templates, you could send something like:</p>
+          <div class="code-head"><span>Example: Submit Answers</span><span class="code-lang">JSON</span></div>
+<pre><code>{
+  "responses": [
+    { "question_id": 1, "answer": "I was Alice's direct manager at XYZ Corp for 2 years." },
+    { "question_id": 2, "answer": "Alice's strengths are customer empathy, reliability, and teamwork." },
+    { "question_id": 3, "answer": "She could improve technical product knowledge, but she's a quick learner." },
+    { "question_id": 4, "answer": 5 },
+    { "question_id": 5, "answer": "Yes, definitely" }
+  ]
+}</code></pre>
+          <p>When the actual web form is used, the front-end takes each answer the reference provides and calls this endpoint (often question-by-question or all at once at the end). The backend will record each answer in the database. If you call this endpoint directly and send all answers in one payload as above, it will save them in one go.</p>
+          <p>**Security:** The <code>{reference_token}</code> in the URL is a secret, one-time token. It’s embedded in the unique link emailed to the reference (typically something like <code>https://app.refcheck.com/ref?token=abc123...</code>). This token cannot be guessed and is tied to that specific reference’s email. As such, no additional auth header is needed for this endpoint – the token in the URL itself authenticates the submission. However, if the token is invalid or expired (e.g., if feedback was already submitted), the endpoint will return 410 Gone or 403 Forbidden accordingly.</p>
+          <p><strong>Response:</strong> On success (answers accepted), a 200 OK is returned, and typically no response body is needed (or just a simple acknowledgment JSON). If you submit answers partially (one by one), you’ll get 200 for each. If the token is wrong or the reference check is closed, you might get a 404 or 410. Validation errors (like missing answers for required questions) yield 400 with details.</p>
+          <p>Once a reference’s feedback is fully submitted (all required questions answered and the reference clicked the final submit on the form), RefCheck marks that reference as completed. This triggers any waiting analysis if all references are in, and potentially sends a notification to the recruiter or a webhook to your system. We’ll cover webhooks below.</p>
+        </section>
+        <!-- Retrieve Report & Status -->
+        <section id="endpoint-report" class="section">
+          <h2>Retrieve Report &amp; Status <span class="small">(GET /reference-checks/{id})</span></h2>
+          <p>This endpoint lets you fetch the current status of a reference check and, if completed, the aggregated results. You might poll this periodically or call it after receiving a webhook to get the details.</p>
+          <p><strong>Endpoint:</strong> <code>GET /api/v1/reference-checks/{reference_check_id}</code></p>
+          <p>Use the ID returned when you created the reference check. (In our earlier example, it was <code>rc_123456</code>.) The request must be authenticated with a user or API token as it’s company-specific sensitive data.</p>
+          <p><strong>Response:</strong> On success, returns 200 and a body like:</p>
+          <div class="code-head"><span>Example: Reference Check Status</span><span class="code-lang">JSON</span></div>
+<pre><code>{
+  "reference_check_id": "rc_123456",
+  "candidate": {
+    "name": "Alice Johnson",
+    "role": "Customer Support Lead"
+  },
+  "references": [
+    { "name": "Bob Manager", "email": "bob@example.com", "status": "completed", 
+      "submitted_at": "2025-08-03T10:15:30Z" },
+    { "name": "Carol Coworker", "email": "carol@example.com", "status": "completed", 
+      "submitted_at": "2025-08-03T09:47:10Z" }
+  ],
+  "status": "completed",
+  "completed_at": "2025-08-03T10:15:30Z",
+  "report": {
+    "summary": "Both references praised Alice's reliability and customer service skills. One noted she could improve technical knowledge, but all said they'd work with her again.",
+    "flags": [], 
+    "sentiment_score": 0.9
+  }
+}</code></pre>
+          <p>This output shows that both Bob and Carol have completed their references (with timestamps), and the overall check status is “completed”. The <code>report</code> object contains the AI-generated summary, any flags (an empty array here indicating no serious red flags), and maybe an aggregate sentiment score or rating. (The exact fields in report may evolve; always check the latest API docs or include the fields parameter if we support partial responses.) If the check is still in progress, <code>status</code> might be “in_progress” and <code>report</code> could be null or absent. You would then see which references are still “pending” in the list.</p>
+          <p><strong>Error cases:</strong> If you request an ID that doesn’t exist or belongs to a different company, you’ll get 404 or 403. If the report is not yet ready (e.g., references done but AI analysis pending for a second), the status might still be “in_progress” or “analyzing”. In such a case, you can try again shortly or rely on the webhook to notify completion.</p>
+          <p>There is also a possibility to fetch raw reference answers if you need them (e.g., for custom processing). That could be an expanded version of this endpoint or a different one like <code>GET /reference-checks/{id}/responses</code> which lists each question’s answer by each reference. However, in most cases the summary and flags suffice. If needed, consult the API documentation for the specific resource or include a query parameter to get detailed answers.</p>
+        </section>
+        <!-- Webhooks & Callbacks -->
+        <section id="webhooks" class="section">
+          <div class="section-header">
+            <div class="icon">WH</div>
+            <div>
+              <h1 class="section-title">Webhooks &amp; Callbacks</h1>
+              <p class="section-subtitle">Receiving notifications from RefCheck</p>
+            </div>
+          </div>
+          <p>Constantly polling an API to see if references are done is inefficient. That’s where **webhooks** come in. RefCheck can send an HTTP POST to a URL of your choosing when certain events occur, essentially “pushing” the update to you. This is especially useful to get immediate notification when a reference check is completed (so you can move the candidate forward, notify a recruiter, etc.).</p>
+          <p>When creating a reference check via API, you have the option to include a <code>callback_url</code> (as shown in the create example). This URL should be an endpoint in your system that is prepared to receive JSON payloads from RefCheck. If provided, RefCheck will perform an HTTP POST request to that URL under these circumstances:</p>
+          <ul>
+            <li><strong>All references completed:</strong> As soon as the final reference submits feedback and the report is generated, a webhook is sent. (If the AI report generation is still running, we may send once that’s done, or send one update for “feedback complete” and another for “report ready”. The payload will indicate status.)</li>
+            <li><strong>Reference declined or unreachable (optional):</strong> If a reference explicitly declines to give feedback (via an option in the form) or an email bounces, we can notify via webhook. This allows you to take action, like asking the candidate for an alternate reference.</li>
+          </ul>
+          <p>You can also set a default <code>callback_url</code> for all reference checks in your company settings. Then you don’t need to specify it every time in the API call; RefCheck will use the default unless overridden.</p>
+          <h4>Webhook Request Example</h4>
+          <p>When triggered, RefCheck will POST a JSON payload to your URL. For example:</p>
+          <div class="code-head"><span>Webhook Payload</span><span class="code-lang">JSON</span></div>
+<pre><code>{
+  "event": "reference_check.completed",
+  "reference_check_id": "rc_123456",
+  "status": "completed",
+  "completed_at": "2025-08-03T10:15:30Z",
+  "candidate": {
+    "name": "Alice Johnson",
+    "role": "Customer Support Lead"
+  },
+  "summary": "Both references praise Alice's reliability and ...",
+  "flags": []
+}</code></pre>
+          <p>This payload indicates that the reference check <code>rc_123456</code> is now complete. We include the summary text and flags directly for convenience (so you don’t necessarily have to call the API to get it, though you can if you want full detail). The <code>event</code> field tells the type of webhook. Currently, the main event is <code>reference_check.completed</code> but in future, we might add others (like <code>reference.delayed</code> or <code>reference.reminder_sent</code> if those are useful). Your endpoint should parse the JSON and confirm receipt by returning a 200. If we get a non-2xx response or a timeout, RefCheck will retry the webhook a few times (with exponential backoff) to handle transient issues.</p>
+          <p><strong>Security:</strong> To ensure the webhook is coming from RefCheck and not someone else, you can do a couple of things:
+            </p><ul>
+              <li>Include a secret token in the URL that only you and RefCheck know, e.g., <code>https://yourapp.com/refcheck-webhook?token=ABC123</code>. RefCheck will hit that exact URL, and you verify the token on receipt.</li>
+              <li>Alternatively, we can sign the webhook requests (for example, include a signature header using an HMAC and a shared secret). This is a bit more involved but more secure. Check RefCheck settings to see if webhook signing is available; if so, your code would compute a hash of the payload using the secret and compare it to the signature header.</li>
+            </ul>
+          <p></p>
+          <p>Ensure your webhook endpoint is configured to handle the incoming data quickly. Typically, you might just mark something in your database or enqueue further processing, then return a 200. If your endpoint consistently fails, RefCheck may disable webhooks for your account until the issue is resolved to avoid overwhelming your server with retries.</p>
+        </section>
+        <!-- ATS Integration Example -->
+        <section id="ats-integration" class="section">
+          <h2>ATS Integration Example</h2>
+          <p>Let’s walk through a typical integration with an Applicant Tracking System (ATS) to illustrate how the pieces come together:</p>
+          <div class="persona">
+            <h3>👩‍💼 Scenario: Rachel integrates RefCheck with Greenhouse ATS</h3>
+            <p>Rachel wants any candidate moved to the “Reference Check” stage in Greenhouse to automatically trigger RefCheck, and once references are done, she wants a note added to the candidate’s profile.</p>
+          </div>
+          <ol>
+            <li><strong>Triggering via Webhook/Zapier:</strong> Greenhouse (and many ATS) allow setting up a webhook or using an automation platform like Zapier. Rachel configures a webhook in Greenhouse: whenever a candidate’s stage changes to “References,” an HTTPS POST is sent to a specific URL. She sets that URL to a small integration service (or a Zapier webhook trigger) that she controls.</li>
+            <li><strong>Calling RefCheck API:</strong> Upon receiving the ATS webhook with candidate details (name, email, job, etc.), Rachel’s integration service calls the RefCheck API (the “Create Reference Check” endpoint). It plugs in the candidate info and finds the references either from the ATS data or by looking them up in a separate form. Alternatively, if Greenhouse stores references in custom fields on the candidate, the webhook might include them, which can be passed through. This API call returns the new reference_check_id, which the service can store along with the ATS candidate ID for correlation.</li>
+            <li><strong>RefCheck in action:</strong> RefCheck sends out emails to the references. Rachel can monitor progress in the RefCheck dashboard, but she doesn’t need to do anything manually – it’s all running in parallel to her ATS.</li>
+            <li><strong>Completion Webhook back to ATS:</strong> Rachel provided a <code>callback_url</code> in the API call (or set a default one) that points to another endpoint in her integration service. When RefCheck posts the “completed” event, her service receives it, parses the summary and outcome.</li>
+            <li><strong>Updating ATS profile:</strong> Using the Greenhouse API, the integration service posts a note to the candidate’s profile: e.g., “References completed on Aug 3. Summary: Alice is highly recommended by former manager and colleague. No red flags.” It might also move the candidate to the next stage (e.g., “Ready for Offer”) by calling another ATS API endpoint, or at least notify the hiring team via email/Slack.</li>
+          </ol>
+          <p>In this scenario, Rachel doesn’t have to do any data entry in RefCheck; everything is driven by ATS events. The key integration points are the outgoing webhook from ATS to trigger the process, the API call to RefCheck to create the check, and the webhook from RefCheck to notify completion. Each system remains authoritative for its part (ATS for candidate info, RefCheck for reference processing), but they communicate seamlessly.</p>
+          <p>This model can be adapted to other ATS or HR systems. Some systems might not have webhooks but allow scheduled polling – in that case, you could periodically call the ATS API to find candidates in “Reference Check” stage and then call RefCheck accordingly. However, webhooks are preferred for real-time and efficiency.</p>
+        </section>
+        <!-- Zapier & Other Tools -->
+        <section id="zapier-integration" class="section">
+          <h2>Zapier &amp; Other Tools</h2>
+          <p>If you don’t want to write a custom integration service, or your team prefers no-code solutions, RefCheck can work with automation platforms like **Zapier**, **Make (Integromat)**, or others:</p>
+          <ul>
+            <li><strong>Zapier Integration:</strong> We’ve published RefCheck’s API on Zapier for common actions. For instance, you can create a Zap: *Trigger*: “New Stage Change in [Your ATS] (stage = Reference Check)” → *Action*: “HTTPRequest (POST) to RefCheck API to create reference check”. Zapier can catch the webhook from your ATS (many ATS have native Zapier triggers) and then you use Zapier’s Webhooks or API action to call RefCheck. Additionally, you can have another Zap where *Trigger*: “Webhook from RefCheck (Reference Check Complete)” → *Action*: “Update Candidate in ATS (add note or move stage)”. We provide templates in Zapier to simplify this – essentially, those templates know which fields to map (candidate name, email, etc.). Using Zapier is great for initial automation or if you lack developer resources. Just be mindful of Zapier’s rate limits and ensure you don’t expose the API keys publicly within Zap configurations.</li>
+            <li><strong>Native Integrations &amp; Plugins:</strong> Over time, RefCheck aims to offer native integrations (plugins) for popular systems. For example, a direct Greenhouse plugin might let you trigger reference checks with one click inside Greenhouse’s UI, without even dealing with API keys. Until those are available, the combination of webhooks and our API as described is the way to integrate.</li>
+            <li><strong>Other HRIS/HCM Systems:</strong> You might want to integrate reference check outcomes into onboarding software or HRIS. The same principles apply: use the API to fetch reports and then use the target system’s API to upload or attach them. Some systems might allow custom fields or attachments – you could take the PDF report from RefCheck (by calling a PDF download endpoint) and attach it to the employee’s record in the HRIS. While an out-of-the-box integration might not exist yet, the building blocks (APIs on both sides) usually do.</li>
+          </ul>
+          <p>Remember, when using third-party automation tools, treat your API credentials carefully. Do not share API keys in channels or code repositories. In Zapier, for instance, use their secure authentication or store the key in a Zapier secret field. Consider creating a special Integration User in RefCheck with limited access (if that capability exists) so that the API key used cannot, say, delete data or access other areas beyond what’s needed.</p>
+          <p>Ultimately, our API and webhook flexibility means you can integrate RefCheck with just about anything – whether it’s a modern ATS, a legacy system, or even a Slack workflow (imagine a Slack bot that posts “Reference check complete for Alice, type /view_ref Alice to see results” – you could build that using the API!). We encourage experimentation and provide support for development questions.</p>
+        </section>
+        <!-- Data Schema & Examples -->
+        <section id="data-schemas" class="section">
+          <div class="section-header">
+            <div class="icon">DT</div>
+            <div>
+              <h1 class="section-title">Data Schema &amp; Examples</h1>
+              <p class="section-subtitle">Understanding templates and responses</p>
+            </div>
+          </div>
+          <p>The RefCheck system deals with structured data for questionnaires and responses. While the API abstracts most of this (you don’t usually need to know the internal schema to use it), it can be helpful to understand how things are structured – especially if you plan to customize questions or interpret detailed results. Here are a couple of important data structures:</p>
+          <h4>Questionnaire Template</h4>
+          <p>A template defines the questions asked to references. Each reference check uses one template. By default, we have a “Standard 5-question Template” (referenced by template_id like <code>template_standard_01</code>). If your organization needs different questions for certain roles, you can define multiple templates (currently via the RefCheck UI or by contacting support; in future, via API). The template schema looks like:</p>
+          <div class="code-head"><span>Questionnaire Template Schema</span><span class="code-lang">JSON</span></div>
+<pre><code>{
+  "template_id": "template_standard_01",
+  "name": "Standard Reference Template",
+  "questions": [
+    { "id": 1, "text": "How do you know the candidate and in what context?", "type": "text" },
+    { "id": 2, "text": "What are the candidate's greatest strengths?", "type": "text" },
+    { "id": 3, "text": "What areas could they improve upon?", "type": "text" },
+    { "id": 4, "text": "Rate the candidate's reliability from 1-5.", "type": "rating", "scale": 5 },
+    { "id": 5, "text": "Would you rehire the candidate?", "type": "multiple_choice",
+      "options": ["Yes, definitely", "Possibly / with reservations", "No"] }
+  ]
+}</code></pre>
+          <p>This JSON isn’t something you usually pull via API (though we may add an endpoint to list templates). It’s shown to clarify the <code>question_id</code> references you see in responses. Each question has an ID and type. Types can be <code>text</code> (open-ended), <code>rating</code> (numeric scales), <code>multiple_choice</code>, etc. When references answer:
+            </p><ul>
+              <li>Text and multiple-choice answers come back as strings (the exact text or the chosen option text).</li>
+              <li>Rating answers come back as numbers (as seen in the example for question 4 above, answered with 5).</li>
+            </ul>
+          If you had a custom template with different questions, the response payloads would use those question IDs. It’s crucial that if you do vary templates, your integration code accounts for that when parsing responses or reports (for example, a sales position might have an extra question about meeting targets).
+          <p></p>
+          <h4>Raw Responses</h4>
+          <p>While the summary report is usually enough, you might have a use case to store or analyze the raw answers. We haven’t made a dedicated endpoint for raw answers in v1, but the data is accessible in the reference check status (if requested with a detail flag, or a separate endpoint can be enabled). A raw response structure per reference might look like:</p>
+          <div class="code-head"><span>Reference Responses (Sample)</span><span class="code-lang">JSON</span></div>
+<pre><code>{
+  "reference_id": "ref_101",
+  "name": "Bob Manager",
+  "responses": [
+    { "question_id": 1, "answer": "I supervised Alice at XYZ Corp from 2018-2020." },
+    { "question_id": 2, "answer": "She has great customer empathy and is very reliable." },
+    { "question_id": 3, "answer": "She could improve her technical product knowledge." },
+    { "question_id": 4, "answer": 5 },
+    { "question_id": 5, "answer": "Yes, without hesitation." }
+  ]
+}</code></pre>
+          <p>This example shows the kind of detail that underlies the summary. If needed, we can provide these via an export or API. Many integrations won’t need to go to this level, but if you were doing data analysis (e.g., tracking common weaknesses across all hires) or feeding data into a machine learning system, you’d use these. Keep in mind to respect privacy – these free-text answers may contain personal opinions and should usually remain internal.</p>
+          <p>One more note: Each reference in the system has its own unique ID (reference_id like ref_101 above) – different from the reference check id. Under the hood, this ties the reference’s responses and contact info together. When you use the reference check status endpoint, we can include an array of reference objects with their response completion as shown earlier, but not necessarily all their answers unless requested.</p>
+        </section>
+        <!-- Appendix: Sentiment Analysis Example -->
+        <section id="appendix-analysis" class="section">
+          <div class="section-header">
+            <div class="icon">AP</div>
+            <div>
+              <h1 class="section-title">Appendix: Sentiment Analysis Example</h1>
+              <p class="section-subtitle">How RefCheck flags answers (developer insight)</p>
+            </div>
+          </div>
+          <p>This section provides a peek under the hood at how RefCheck’s AI might perform sentiment analysis on reference feedback. You generally do not need this to use the API, but it can help interpret the <code>flags</code> or sentiment_score you see in reports. The actual AI uses a complex model, but here’s a simplified pseudocode that captures the essence of flagging positive/negative language in a reference’s answer:</p>
+          <div class="code-head"><span>Sentiment Analysis Pseudocode</span><span class="code-lang">JS</span></div>
+<pre><code>function analyzeFeedback(text) {
+  // Basic sentiment detection using keyword matching (fallback if NLP fails)
+  const positiveHints = ["always", "excellent", "great", "definitely", "strongly recommend"];
+  const negativeHints = ["but", "however", "concerns", "would not", "reservation"];
+  let score = 0;
+  for (const hint of positiveHints) {
+    if (text.toLowerCase().includes(hint)) score += 1;
+  }
+  for (const hint of negativeHints) {
+    if (text.toLowerCase().includes(hint)) score -= 2;
+  }
+  return score;
+}
+
+// Example usage:
+const feedback = "She was always reliable and exceeded expectations, but needed some guidance on technical tasks.";
+console.log(analyzeFeedback(feedback));  // score -&gt; -1 (mixed sentiment)</code></pre>
+          <p>In this snippet, certain words adjust a sentiment score. Highly positive words increment the score, whereas words that often indicate a caveat or issue (like “but” or “concerns”) decrement more heavily. In the example feedback, the score comes out negative due to the “but needed some guidance” clause, even though positive words were present – hence a mixed or slightly cautionary sentiment.</p>
+          <p>RefCheck’s AI does much more than this, including understanding context and synonyms, but the idea is similar: it tallies evidence of praise versus caution. The <code>flags</code> array you see in a report might highlight exact phrases like “needed some guidance on technical tasks” as a yellow flag for improvement area. A red flag might be something like “would not rehire” or “attendance issues,” etc. These help the recruiter quickly spot potentially problematic feedback without combing through all text.</p>
+          <p>For developers, this insight might help if you plan to post-process the summary or integrate the sentiment score into a larger evaluation model in your system. You could, for instance, decide that any sentiment_score below 0 triggers an alert to HR to review manually. Or if all scores are consistently high, you might auto-approve candidates for the next step.</p>
+          <p>We will continue to refine the AI and may expose more data via the API (like category tags or question-level sentiment in the future). Keep an eye on the API changelog for improvements. And if you prefer not to use our sentiment analysis, you can always fetch raw answers and apply your own NLP – our open design lets you use as much or as little of our interpretation as you want.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#api-overview">API Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#authentication">Authentication &amp; Security</a></li>
+        <li class="nav-item"><a class="nav-link" href="#endpoints">REST API Endpoints</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#endpoint-create">Create Reference Check</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#endpoint-submit">Submit Reference Feedback</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#endpoint-report">Retrieve Report &amp; Status</a></li>
+        <li class="nav-item"><a class="nav-link" href="#webhooks">Webhooks &amp; Callbacks</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#ats-integration">ATS Integration Example</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#zapier-integration">Zapier &amp; Other Tools</a></li>
+        <li class="nav-item"><a class="nav-link" href="#data-schemas">Data Schema &amp; Examples</a></li>
+        <li class="nav-item"><a class="nav-link" href="#appendix-analysis">Appendix: Sentiment Analysis Example</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>

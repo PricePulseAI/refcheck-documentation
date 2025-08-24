@@ -1,0 +1,755 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <!-- Strict CSP for a self-contained doc with inline CSS/JS allowed -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — Technical Architecture &amp; System Design (v1.0)</title>
+  <meta name="description" content="RefCheck Technical Architecture: Back-end, front-end, database, integrations, security and performance considerations for the AI-powered reference checking platform.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — Technical Architecture &amp; System Design <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">System Architecture</span>
+        <span class="chip">Backend</span>
+        <span class="chip">Database</span>
+        <span class="chip">Integrations</span>
+        <span class="chip">Security</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#system-overview">System Overview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#architecture-overview">Architecture Diagram &amp; Components</a></li>
+          <li class="nav-item"><a class="nav-link" href="#frontend">Frontend Application</a></li>
+          <li class="nav-item"><a class="nav-link" href="#backend">Backend Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="#external-services">External Services &amp; Integrations</a></li>
+          <li class="nav-item"><a class="nav-link" href="#data-storage">Data Model &amp; Storage</a></li>
+          <li class="nav-item"><a class="nav-link" href="#security-privacy">Security &amp; Privacy</a></li>
+          <li class="nav-item"><a class="nav-link" href="#scalability-performance">Scalability &amp; Performance</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- System Overview -->
+        <section id="system-overview" class="section">
+          <div class="section-header">
+            <div class="icon">OV</div>
+            <div>
+              <h1 class="section-title">System Overview</h1>
+              <p class="section-subtitle">Cloud-based architecture for automated reference checks</p>
+            </div>
+          </div>
+          <p>RefCheck is architected as a **cloud-based web application** that connects recruiters, candidates, and reference providers on a unified platform. The system is composed of a front-end user interface (for recruiters and reference providers) and a back-end server that handles business logic, data storage, and integration with external services (like email and AI analysis APIs). The design follows a **modular monolith** approach: all core functions run within a single cohesive application (rather than many microservices), but the codebase is divided into clear modules (e.g., reference collection, analysis, notifications, etc.) to maintain organization and flexibility. This approach fits our scale for v1 and allows faster development, while still being structured for future growth or modularization.</p>
+          <p>The overall goals for the system architecture are:
+            </p><ul>
+              <li><strong>Reliability:</strong> Ensure that reference invitations are delivered and feedback collected without loss. This means building retry mechanisms for emails, handling partial failures gracefully, and designing the system to avoid single points of failure where possible.</li>
+              <li><strong>Security &amp; Confidentiality:</strong> Protect sensitive data (candidate info, reference feedback) through secure communication (SSL/TLS enforced everywhere) and by isolating data per client company. Also implement role-based access so only authorized users within a company can view their reference reports. (Details in Security &amp; Privacy section.)</li>
+              <li><strong>Scalability:</strong> The system should handle spikes in usage, such as when an agency sends out 100 reference requests at once. We use a stateless backend that can run on multiple instances behind a load balancer, and a scalable database that can handle concurrent reads/writes. Heavy tasks (like generating AI summaries) are offloaded to external APIs or async processes to keep the app responsive. (See Scalability &amp; Performance section.)</li>
+              <li><strong>Maintainability:</strong> Use clear separation of concerns – the UI focuses on presenting information and guiding user input, while the backend services enforce rules (e.g., ensuring each reference link is unique and valid). The code is organized such that front-end developers can iterate on the interface independently of back-end logic. The architecture favors use of standard frameworks (e.g., a React front-end, a Node/Express or similar back-end) so that new team members can easily understand and contribute.</li>
+              <li><strong>Integration-readiness:</strong> Anticipating that many clients will want RefCheck integrated into their existing HR tools, the architecture exposes clean interfaces (like webhooks and REST APIs) to send or receive data. For instance, a webhook endpoint allows an ATS to trigger a new reference check in RefCheck, and a callback system (or Zapier integration) enables pushing completed reference summaries back to the ATS. This way, RefCheck can function both as a standalone app and as a component in a larger HR workflow.</li>
+            </ul>
+          <p></p>
+          <p>In essence, RefCheck’s architecture is built to deliver the reference checking functionality **as a reliable service** accessible from any browser, while abstracting away complexities (AI analysis, reminder scheduling, data encryption) behind the scenes. The following sections detail the specific components and how they interact to achieve this.</p>
+        </section>
+        <!-- Architecture Diagram & Components -->
+        <section id="architecture-overview" class="section">
+          <div class="section-header">
+            <div class="icon">AR</div>
+            <div>
+              <h1 class="section-title">Architecture Diagram &amp; Components</h1>
+              <p class="section-subtitle">How RefCheck's parts interact in the system</p>
+            </div>
+          </div>
+          <p>The high-level architecture includes a web front-end for all user interactions and a back-end application that handles all data processing and external communications. Below is a simplified representation of the system’s major components and their interactions:</p>
+          <div class="code-head"><span>System Architecture</span><span class="code-lang">Diagram</span></div>
+          <pre><code>
+  Recruiter           Reference Provider
+     │                        │
+     │ Web (Browser)          │ Web (Browser)
+     │ ── ► [RefCheck Frontend (React SPA)] ◄ ─ │
+     │            (HTTPS)            │
+     └─── ► [RefCheck Backend (Node API)] ◄ ────┘
+                   │    ▲
+                   │    │ (async via queue or threads)
+                   ▼    │
+          [Database (PostgreSQL)] 
+                   │
+                   │ (outgoing API calls)
+                   ▼
+          External Services:
+          - Email/SMS Provider (SendGrid/Twilio)
+          - AI Analysis API (OpenAI)
+          - ATS Webhook Integrations (Zapier/Custom)
+          </code></pre>
+          <p class="muted">*Diagram Legend:* Solid arrows indicate primary request/response flows (e.g., user actions triggering API calls). The dashed arrow indicates asynchronous processing (the backend may handle some tasks via background jobs). External services (right) are invoked by the backend as needed.</p>
+          <p>As depicted:
+            </p><ul>
+              <li><strong>Front-end:</strong> is a single-page application (SPA) delivered to users’ browsers. It contains the recruiter dashboard interface and the chat-style reference form interface. All dynamic data (like list of candidates, reference questions, reports) is fetched from the back-end via secure HTTPS API calls.</li>
+              <li><strong>Back-end:</strong> is a centralized web server (built with Node.js and Express, in our stack) that exposes a RESTful API. This layer orchestrates everything: when a recruiter triggers a reference check, the backend saves details in the database, sends out emails to references, and logs events. When a reference submits feedback, the backend stores it and calls the AI service to generate a summary.</li>
+              <li><strong>Database:</strong> is the persistent data store (we use a relational database like PostgreSQL for its robustness and ACID compliance). It holds tables for **users** (recruiters, etc.), **candidates**, **references** (contact info and status), **responses** (answers from questionnaires), and more. All application state that needs to be remembered (e.g., what questions were asked, which references completed their input) lives here.</li>
+              <li><strong>External Services:</strong> the backend integrates with several:
+                <ul>
+                  <li>An **Email/SMS service** (such as SendGrid for email, Twilio for SMS) to deliver reference invitations and reminders. These are called through API whenever the system needs to notify someone.</li>
+                  <li>The **AI Analysis API** (OpenAI, in our case) which receives text and returns sentiment scores and summary. The backend sends collected reference answers to this service over a secure API call once all required references are in.</li>
+                  <li>**ATS/Webhook Integrations:** The backend can receive incoming webhook calls to auto-start reference checks (e.g., from an ATS when a candidate hits a certain stage), and similarly send outgoing webhooks or API calls with results. We often implement these via configurable endpoints or through Zapier for flexibility initially.</li>
+                </ul>
+              </li>
+            </ul>
+          <p></p>
+          <p>Not shown explicitly in the diagram but present in the system:
+            </p><ul>
+              <li><strong>Background Job Worker:</strong> Within the backend, there's a mechanism (could be a separate worker process or a scheduled job runner) to handle tasks like sending reminder emails or processing AI analysis results asynchronously. This ensures the main API can respond quickly to users without waiting on long-running tasks.</li>
+              <li><strong>Content Delivery:</strong> The static assets of the front-end (HTML, CSS, JS bundle) are served either by the backend or a CDN, to ensure fast load times. Users hitting the RefCheck app URL get the front-end assets, which then communicate with the API server.</li>
+            </ul>
+          <p></p>
+          <p>Overall, the architecture is a **typical web app structure**: a client-side UI, a server-side API, and supporting external services. This separation enables us to scale each part independently (e.g., if generating reports becomes heavy, we could scale the back-end or isolate that function). It also allows each piece to be developed and tested somewhat independently (e.g., we can stub the API to test front-end or vice versa).</p>
+        </section>
+        <!-- Frontend Application -->
+        <section id="frontend" class="section">
+          <div class="section-header">
+            <div class="icon">FE</div>
+            <div>
+              <h1 class="section-title">Frontend Application</h1>
+              <p class="section-subtitle">SPA for recruiter dashboard &amp; reference form</p>
+            </div>
+          </div>
+          <p>The front-end of RefCheck is a **single-page application (SPA)** implemented with modern web technologies (e.g., **React** with HTML5/CSS3). This choice allows for a fluid, app-like user experience, with the page dynamically updating as users navigate between candidates, fill out forms, etc., without full page reloads. Key aspects of the front-end design and implementation include:</p>
+          <ul>
+            <li><strong>Component-Based UI:</strong> The interface is divided into reusable components – for example, a <em>CandidateList</em> component for the sidebar list of candidates, a <em>ReferenceFormChat</em> component for the chat Q&amp;A interface, and a <em>ReportSummary</em> component for displaying the AI-generated synopsis. This structure follows React best practices and makes the code more maintainable (each component has its own state and logic encapsulated).</li>
+            <li><strong>State Management:</strong> We utilize a state management library or React’s built-in context/hooks to handle global states like the logged-in user info, or which candidate’s data is currently loaded. For instance, when a recruiter selects a candidate, the app fetches that candidate’s references and stores it in state, then passes it down to the Report component. The reference chat form component manages its own step-by-step state (current question, answers given) and sends answers to the server as they are submitted.</li>
+            <li><strong>Responsive Design:</strong> The front-end is fully responsive, as references might open the link on a mobile device. The design automatically adjusts – the recruiter dashboard collapses into a hamburger menu on small screens, and the chat interface on mobile uses full-screen modals/inputs for ease of typing. We leveraged CSS Grid/Flexbox and media queries (as outlined in the UI/UX spec) to achieve this without separate codebases for mobile.</li>
+            <li><strong>API Communication:</strong> The SPA communicates with the back-end exclusively via **HTTPS AJAX calls** (using fetch or Axios). We defined a set of endpoints (e.g., GET /api/candidates, POST /api/reference-checks, GET /api/reports/:id) that the front-end calls. The app uses JSON as the data format. We built a small API client module in the front-end to wrap these calls, handle errors globally (like intercept a 401 Unauthorized and redirect to login), and manage loading states. All API calls include authentication tokens (stored securely, see Security section) to verify the user’s session.</li>
+            <li><strong>Real-Time Updates &amp; Feedback:</strong> While not full realtime via WebSockets (not needed for v1), the front-end does poll or refresh certain information to give a near-real-time experience. For example, when a reference is marked as completed (the server notifies via an event or the recruiter refreshes), the UI updates the status badge from “Pending” to “Completed” without requiring a manual reload. Interactive cues (like showing a “1 new response” notification on the dashboard) are achieved by occasionally re-fetching data or via server-sent events if available in future. In v1, a simple approach is used: when the recruiter opens a candidate’s detail view, it always fetches the latest data from the server.</li>
+            <li><strong>Input Validation &amp; UX:</strong> The front-end provides immediate feedback for user inputs. For instance, form fields such as reference email addresses are validated in-browser (checking for proper email format) before even hitting the server, to catch simple errors early. However, final validation (like ensuring an email isn’t already used for a reference in the same check) is done on the server – the front-end will display any error messages returned by the API in a friendly manner. This double-layer ensures a smooth user experience without compromising data integrity.</li>
+          </ul>
+          <p>Because the front-end is delivered as static files (HTML/JS/CSS) and then runs entirely in the browser, it’s decoupled from server-side technology beyond the API contract. This means we could serve the front-end via a CDN or separate static server, and even have multiple deployment options (e.g., an Electron app or mobile wrapper in the future) using the same code. For now, it is hosted under the same domain as the API for simplicity (enabling cookies and easy relative API calls), but we maintain a clear separation in development: the front-end codebase purely deals with UI/UX, and never directly accesses the database or other secrets – it always goes through the API.</p>
+        </section>
+        <!-- Backend Services -->
+        <section id="backend" class="section">
+          <div class="section-header">
+            <div class="icon">BE</div>
+            <div>
+              <h1 class="section-title">Backend Services</h1>
+              <p class="section-subtitle">The API server and background job engine</p>
+            </div>
+          </div>
+          <p>The back-end is the core of RefCheck’s functionality. We chose a **Node.js** runtime with an **Express** web framework (or a similar framework) to implement a RESTful API. This decision was influenced by Node’s non-blocking model which is well-suited for IO-bound tasks like calling external APIs (email, AI) and interacting with a database. Key responsibilities and design points of the back-end include:</p>
+          <ul>
+            <li><strong>REST API Endpoints:</strong> The backend exposes endpoints that cover all needed operations:
+              <ul>
+                <li><code>POST /api/reference-checks</code>: create a new reference check (called when a recruiter enters references for a candidate). This triggers logic such as saving the candidate &amp; references, sending out invitation emails, and scheduling reminders.</li>
+                <li><code>GET /api/reference-checks/{id}</code>: retrieve the status and results of a particular reference check (including which references are done, and the compiled report when ready).</li>
+                <li><code>POST /api/references/{token}/responses</code>: submit answers from a reference via their unique link/token. This endpoint is hit by the reference form when they send each answer or complete the questionnaire, and the token in URL ensures we know which candidate/reference it corresponds to while preventing unauthorized submissions.</li>
+                <li><code>GET /api/reports/{id}</code>: fetch the AI-generated summary report for a given candidate’s references (with appropriate auth checks). If the report isn’t ready yet, this might return partial data or a status indicating “in progress”.</li>
+                <li>Plus endpoints for related data: login/auth, listing a company’s candidates, etc. We design all APIs to be stateless and RESTful, using JSON in request and response bodies, and standard HTTP response codes.</li>
+              </ul>
+            </li>
+            <li><strong>Server Logic &amp; Modules:</strong> The code is organized into services or controllers corresponding to domain areas:
+              <ul>
+                <li><em>ReferenceCheck Service:</em> Handles creating a new reference check. It encapsulates generating unique reference tokens/links, saving the initial data, and enqueuing email jobs.</li>
+                <li><em>Notification Service:</em> Responsible for sending emails (and future SMS). It may use a job queue (like Bull or BeeQueue in Node) to send emails asynchronously so the HTTP response to the recruiter doesn’t wait on email API latency. This service also schedules automatic reminders by adding a delayed job or leveraging an external scheduler (cron).</li>
+                <li><em>Analysis Service:</em> When reference feedback is complete, this service takes the aggregated responses and calls the external AI API. It might do this in the background to avoid keeping the user waiting. Once analysis is done, it stores the results and notifies relevant parties (e.g., marks the report ready for the recruiter to view).</li>
+                <li><em>User Management &amp; Auth:</em> Manages accounts, login, and permissions. We ensure that each API call verifies the user’s identity (e.g., via a JWT or session cookie) and their access rights (a user from Company A cannot fetch data for Company B’s candidate, etc.).</li>
+              </ul>
+              Using this modular approach means developers can, for instance, tweak how reminders are scheduled by editing Notification Service without touching the rest of the app.
+            </li>
+            <li><strong>Background Jobs &amp; Scheduling:</strong> Certain tasks run in the background:
+              <ul>
+                <li>Email invites and reminders are offloaded so that the HTTP endpoint returns quickly. We either run a separate worker process or use a background queue thread. Node libraries like <code>node-cron</code> might trigger a daily scan of “which references are still pending after 48 hours” and enqueue reminder emails accordingly.</li>
+                <li>AI processing is another background job. After the last reference submits their feedback, the backend can immediately respond to the reference with a thank-you, and separately kick off a job to compile the report (call the OpenAI API). When that job finishes, it updates the database (e.g., saves the summary and flags). The recruiter’s next fetch (or a push notification if we implement it) then gets the ready summary.</li>
+                <li>For reliability, the job runner includes error handling and retries (e.g., if an email API call fails due to a network glitch, it will retry a few times and log an alert if not successful).</li>
+              </ul>
+            </li>
+            <li><strong>Integration Hooks:</strong> The back-end provides integration points:
+              <ul>
+                <li>An incoming webhook endpoint (e.g., <code>POST /api/integrations/ats</code>) that ATS platforms or Zapier can call with minimal info (candidate name, email, role) to initiate a reference check. This is secured by a token and treated similarly to a manual creation, except triggered externally.</li>
+                <li>Outgoing webhooks or callbacks: When a reference check completes, we can POST a payload to a URL provided by the client (or to Zapier) containing summary results. This is configured per client. Implementation-wise, we have a small module that, upon check completion event, looks for any configured webhook and attempts the POST (with retry logic if the receiver is temporarily down).</li>
+              </ul>
+              These keep RefCheck extensible – even if these integrations fail or are not used, they do not impact the core flow, as they run asynchronously alongside.
+            </li>
+            <li><strong>Error Handling &amp; Logging:</strong> The backend logs important events and errors. We utilize a logging library to record things like “Email sent to John Doe” (info level) and any error stack traces (error level). This is crucial for debugging issues such as a reference saying they didn’t get an email – we can trace if it was sent and if the email API returned success. For user-facing errors (e.g., reference token invalid or server exception), the API returns a clear error message and code which the front-end uses to display a friendly message. We also have health-check endpoints (for cloud orchestration to monitor) that verify the app’s sub-systems (database connectivity, etc.).</li>
+          </ul>
+          <p>In summary, the backend is the “brains” of RefCheck – ensuring that at each step (inviting references, collecting answers, analyzing, reporting) the right actions happen reliably. It’s built to be robust against common failure modes (network issues, partial outages) through retries and logging. The stateless nature (each API call contains auth and needed data) means we can run multiple instances behind a load balancer to handle more traffic. The deliberate separation of concerns inside makes it easier to maintain and extend (for example, swapping out the AI API for another, or adding a new type of notification, can be done in one part of the code without upheaval elsewhere).</p>
+        </section>
+        <!-- External Services & Integrations -->
+        <section id="external-services" class="section">
+          <div class="section-header">
+            <div class="icon">EX</div>
+            <div>
+              <h1 class="section-title">External Services &amp; Integrations</h1>
+              <p class="section-subtitle">Connecting with email, AI, and HR systems</p>
+            </div>
+          </div>
+          <p>RefCheck leverages trusted third-party services to deliver certain functionality, rather than building everything from scratch. These integrations are abstracted behind our backend services. For context, here are the main external components and how we integrate with them:</p>
+          <ul>
+            <li><strong>Email (SMTP/API):</strong> We use an email delivery service, such as **SendGrid**, to send all system emails (reference invitations, reminders, etc.). Using SendGrid’s API, the backend posts a request containing the email content (we craft the template with dynamic fields like candidate name and unique link). We include our domain’s verified sender credentials to improve deliverability. The integration is done via HTTPS with an API key kept secure on the server. We also have a callback (webhook) from SendGrid enabled for bounce events – if an invite email bounces (invalid address), SendGrid notifies our endpoint, and we mark that reference’s status so the recruiter can be alerted and maybe correct the address. This ensures we don’t silently fail on invitations.</li>
+            <li><strong>SMS (optional):</strong> Though not in initial launch, the architecture supports SMS via **Twilio** or similar. The Notification module in backend is designed so that adding an SMS option for reference invites or reminders is straightforward – it would call Twilio’s API with the reference’s phone number and a short message + link. This is considered for a future update where certain references might prefer text messages over email.</li>
+            <li><strong>AI Analysis (NLP API):</strong> For analyzing text and generating summaries, we integrate with **OpenAI’s API** (particularly their language model endpoints). After collecting reference feedback, our backend sends a request containing the text (possibly formatted or with a prompt instructing to summarize and identify sentiment). The API responds with a summary and possibly sentiment classification, which we then parse and store. To manage cost and response time, we ensure to send a concise prompt and may use a smaller model sufficient for our needs. Additionally, we built a fallback: if the AI API is unreachable or errors out, the system will still compile a basic report (just listing all answers without summary) so the recruiter isn’t blocked. We log AI usage and errors for monitoring. All communication with OpenAI is over HTTPS and we do not send any personally identifiable information beyond first names in the prompt (to maintain confidentiality and compliance).</li>
+            <li><strong>ATS Integrations (Zapier &amp; API):</strong> Many clients will want integration with Applicant Tracking Systems. Instead of building dozens of custom connectors initially, we chose to support **Zapier** as an intermediary. We created a Zapier “app” for RefCheck’s API, so that a user can, for example, trigger a Zap “when a candidate is moved to Reference stage in Greenhouse, create a RefCheck reference check via API”. On our side, this is just the same <code>POST /api/reference-checks</code> call, but Zapier provides a user-friendly mapping. Likewise, when a reference check is completed in RefCheck, we can trigger a Zap output that, say, finds the candidate in the ATS and attaches the PDF report or notes. For more direct integrations, we also document a simple webhook protocol: clients can provide us an endpoint, and we’ll send a JSON payload with results. The payload includes candidate ID, overall outcome, and link to the report. These integration touches are optional, but our architecture accommodating them from day one means enterprise users can slot RefCheck into their workflow seamlessly.</li>
+            <li><strong>Payment Gateway:</strong> (Future consideration) If we introduce a paid subscription model with online payments, the backend would integrate with a service like Stripe. While not implemented in v1, the code structure is ready for adding a module that handles webhooks for subscription changes, and a client-side Stripe integration for checkout. This is noted here to ensure any data model considerations (like account plans or usage metrics) can be planned ahead, but it’s outside the scope of the current implementation.</li>
+          </ul>
+          <p>In integrating with these services, a guiding principle is to **fail gracefully**. External systems can be down or slow:
+            </p><ul>
+              <li>If email API fails, we catch the error and retry after a delay, without crashing our request handler. We also expose a status so the recruiter can see “Email to reference failed to send” in rare cases, rather than assuming it went out. Meanwhile, our system continues functioning for other tasks.</li>
+              <li>If the AI summary is unavailable, as mentioned, we still provide the raw feedback to the recruiter and perhaps an apology note that advanced analysis is delayed. A background job will keep retrying the AI call for some time, and if it later succeeds, we update the report.</li>
+              <li>Security is also critical: API keys for all third-party services are stored in environment variables on the server (never in source control, and never exposed to the front-end). Our code to call these services is consolidated, making it easier to review and ensure we’re not, say, accidentally sending more data than necessary to an external service.</li>
+            </ul>
+          <p></p>
+          <p>By relying on best-in-class external services, we accelerate development and leverage their reliability and scalability. However, we carefully sandbox these integrations so that any single one’s issues don’t cascade into a system-wide problem. This modular approach also means we can swap providers (for example, using a different email API) with minimal changes to our codebase, should needs or vendor status change.</p>
+        </section>
+        <!-- Data Model & Storage -->
+        <section id="data-storage" class="section">
+          <div class="section-header">
+            <div class="icon">DS</div>
+            <div>
+              <h1 class="section-title">Data Model &amp; Storage</h1>
+              <p class="section-subtitle">Database schema and entities</p>
+            </div>
+          </div>
+          <p>At the heart of RefCheck’s back-end lies the **database**, which preserves all persistent data. We opted for a relational database (like PostgreSQL) because the data is highly structured and relational (candidates have many references, references belong to candidates, etc.), and we benefit from SQL for complex querying (e.g., generating stats or ensuring consistency with transactions). The high-level data model includes these primary entities:</p>
+          <ul>
+            <li><strong>User (Recruiter):</strong> Stores login information and profile of recruiter/HR users. Key fields include <em>id</em>, <em>name</em>, <em>email</em>, <em>hashed_password</em>, and <em>company_id</em> (to associate with their organization). We also track permission level (admin vs regular recruiter, if needed for team collaboration features).</li>
+            <li><strong>Company/Account:</strong> Each client (organization using RefCheck) is represented in a table that might hold company name, address, subscription plan, etc. This is primarily used to namespace data – e.g., queries ensure a user only sees candidates for their company_id. It also helps if we implement usage limits per account.</li>
+            <li><strong>Candidate:</strong> Represents a job candidate undergoing reference checks. Fields include <em>id</em>, <em>name</em>, <em>email</em>, <em>position_applied</em>, <em>created_by (user_id)</em>, and a foreign key to <em>company_id</em>. We also track a status (e.g., “in-progress”, “completed”) for the reference check stage.</li>
+            <li><strong>Reference:</strong> Represents an individual reference contact for a specific candidate. Fields: <em>id</em>, <em>candidate_id</em> (linking to Candidate), <em>name</em>, <em>email</em>, <em>relationship</em> (e.g., “Former Manager”), and crucially a <em>status</em> (“pending”, “submitted”, “bounced”, etc.). It also has a <em>unique token</em> or <em>URL</em> that was sent to this reference (often a UUID or secure random string). That token is what the front-end reference form uses to fetch/reference questions and post answers, preventing unauthorized access.</li>
+            <li><strong>Question/Template:</strong> We have a set of reference questions. In v1, these might be mostly static (the same 5 questions for all). But the data model allows for flexibility: a <em>Question</em> table with text like “What are the candidate’s strengths?” and perhaps a category or ordering. A <em>Template</em> table might define which questions apply for certain roles or scenarios. If customization is implemented, this would be used. If not, we simply have one default template and link all references to those questions.</li>
+            <li><strong>Response/Feedback:</strong> Each answer that a reference gives is stored here. Fields: <em>id</em>, <em>reference_id</em> (which reference/contact gave it), <em>question_id</em>, and <em>answer_text</em>. For structured answers like ratings, we could have separate fields (or store them as part of text or a numeric field). We also store metadata like <em>answered_at timestamp</em>. As references fill the form, we either save each answer as it comes (preferred, to prevent data loss if they drop off mid-way) or save at the end. Our implementation actually does incremental save: each submission of an answer via the chat triggers an API call that inserts or updates a Response record. This way, even if a reference doesn’t finish all questions, we have partial data that recruiters could potentially follow up on manually.</li>
+            <li><strong>Report:</strong> When AI analysis is completed, we store results in a Report entity. Fields: <em>candidate_id</em>, <em>summary_text</em>, maybe <em>sentiment_overall</em> and a JSON blob of any flags or scores per question. This makes it easy to retrieve and display to recruiters without re-calling the AI each time. If the AI is re-run (for example if we allow multiple attempts or updates), this record gets updated. We also log the <em>generated_at</em> timestamp for auditing. If AI fails or is unavailable, we may mark a report with a flag indicating “summary not available” so the UI can handle that gracefully.</li>
+            <li><strong>Audit/Logs:</strong> Not necessarily exposed to end users, but we maintain a simple audit log table for critical actions: e.g., <em>timestamp</em>, <em>user_id</em>, <em>action</em>, <em>entity_type/id</em> (like “user 5 (Alice) resent invite to reference 12”). This is very useful for support and debugging and could be expanded into a more robust event tracking system as we grow.</li>
+          </ul>
+          <p>All these tables are linked via foreign keys and have proper indexing on fields that are queried often (like reference tokens, or candidate_id on responses) to ensure quick lookups. We use database constraints to enforce integrity: e.g., a Response cannot exist without a valid reference_id, and we might constrain one response per reference per question (to avoid duplicates on re-submission scenarios).</p>
+          <p>On storage sizing and management:
+            </p><ul>
+              <li>We anticipate text responses to references are generally short (a few sentences each). Our database, being relational, handles text up to a large limit per field (PostgreSQL’s TEXT type) easily for these use cases. We don’t store files or large blobs in the DB – any uploaded files (if we ever allowed, say, an attachment) would go to blob storage, but currently, everything is plain text or small metadata fields.</li>
+              <li>Backups are configured at the database level (daily snapshots, point-in-time recovery enabled). This is crucial given the sensitive nature of the data; loss is unacceptable. Backups are encrypted and stored securely, aligning with compliance (we might have clients asking about data retention – by default, we keep data indefinitely, but we can scrub older reference data on request or after X years under a policy).</li>
+              <li>We also considered potential high-scale: if an agency runs tens of thousands of references, the database may grow but still well within modern SQL capabilities. The design can be sharded or replicated if needed, but we likely won’t need to for quite some time. We monitor query performance and will optimize indexes or add read replicas if analytics queries start affecting transaction speeds.</li>
+            </ul>
+          <p></p>
+          <p>In summary, the data model is the skeleton supporting all features. We took care to align it with the functional requirements (for example, having a place to store partial responses and AI results). Designing it upfront also allowed the front-end and back-end teams to agree on payload shapes (basically reflecting these structures in JSON form). This model will evolve (for instance, adding a “status” field to ReferenceCheck or tracking email delivery statuses), but it provides a robust starting point for our current scope.</p>
+        </section>
+        <!-- Security & Privacy -->
+        <section id="security-privacy" class="section">
+          <div class="section-header">
+            <div class="icon">SP</div>
+            <div>
+              <h1 class="section-title">Security &amp; Privacy</h1>
+              <p class="section-subtitle">Protecting data and ensuring confidentiality</p>
+            </div>
+          </div>
+          <p>Handling reference feedback involves sensitive personal information, so security and privacy are paramount in RefCheck’s architecture. We implemented multiple layers of safeguards to protect data both in transit and at rest, and to enforce that only authorized people can access it. Key security features include:</p>
+          <ul>
+            <li><strong>Authentication &amp; Authorization:</strong> Recruiter users must log in with a secure password (stored hashed with a strong algorithm like bcrypt). We issue an authentication token (JWT or session cookie with HttpOnly flag) upon login, which must accompany every API call. The backend verifies this token and extracts the user and company context. All API routes are protected – any request without valid auth is rejected (401 Unauthorized). Furthermore, we implement **role-based access control**: currently we have basically one role (recruiter) per company, but if an admin role is introduced later (who can invite other recruiters, etc.), the endpoints will check the user’s role. For reference providers, we chose not to require login (to reduce friction), so instead the security for them is the **unique token** in their email link. This token is a long random string which grants access only to that specific reference questionnaire. The reference form API calls use this token to pull questions and submit answers. The token is single-use: once feedback is submitted, it’s marked, and further uses of the link will either not fetch data or allow updates (depending on design, likely it says “Already submitted” to prevent changes after the fact without coordinator permission).</li>
+            <li><strong>Network Security:</strong> The entire application is served exclusively over **HTTPS**. We obtain SSL certificates (via Let’s Encrypt or the cloud provider’s certificate manager) for our domain. This ensures that all data – including reference feedback and login credentials – is encrypted in transit and cannot be sniffed by attackers on the network. We also employ secure cookies (with Secure and HttpOnly flags) for session tokens if that approach is used, to mitigate XSS and network capture risks. On the server side, we restrict unnecessary network exposure: the database is not publicly accessible, only the application server can communicate with it (usually by putting it in a private subnet or using localhost if single-host).</li>
+            <li><strong>Data Encryption at Rest:</strong> Our database encrypts data at rest (most managed cloud databases do this by default nowadays). Additionally, for particularly sensitive fields (like user passwords, which are hashed as mentioned, or perhaps any PII we might store beyond basics), we could add an application-level encryption layer. For example, if storing a national ID or similar (we currently do not), we would encrypt it with our own key before saving. Reference feedback itself we consider sensitive but it’s generally qualitative text about work; we rely on DB-level encryption and access control to protect it.</li>
+            <li><strong>Privacy Controls:</strong> Within the application, we ensure references’ feedback remains confidential:
+              <ul>
+                <li>References are explicitly told their responses go only to the hiring team (and not to the candidate). The system adheres to that – we never expose reference responses to candidates. Internally, our data model ties responses to company accounts, and there’s no feature to forward full raw feedback to a candidate (unless a recruiter manually did so outside system).</li>
+                <li>We comply with data protection regulations (GDPR, CCPA). For instance, any EU personal data is processed under legitimate interest of hiring, and we’re prepared to support data deletion requests: if a candidate or reference requested their data be removed, we have admin tools (or can run scripts) to anonymize or delete their personal identifiers. Our architecture of linking everything by IDs makes deletion straightforward – e.g., remove/obfuscate the candidate’s name, email, but keep anonymized statistical info if needed.</li>
+                <li>We also avoid over-collecting: we only ask references for information relevant to the hire (work-related questions). We do not ask for things like sensitive personal data about the candidate’s health, etc., which not only keeps us clear of certain legal pitfalls but also reduces the sensitivity of stored data.</li>
+              </ul>
+            </li>
+            <li><strong>Session Management &amp; CSRF:</strong> If using cookies for sessions, we implement **CSRF tokens** on state-changing requests to prevent cross-site request forgery. Alternatively, with JWT in an Authorization header, CSRF is not an issue for the API (since an attacker’s domain wouldn’t have the JWT). We also set appropriate CORS rules so that only our domain’s front-end can call our API (preventing random third-party sites from hitting our endpoints with a logged-in user’s credentials). Sessions have a reasonable expiration (e.g., 24 hours of inactivity) to limit window of misuse. There’s also a logout endpoint that clears the token from client side.</li>
+            <li><strong>Audit and Monitoring:</strong> We maintain logs of admin actions and login attempts. Repeated failed logins trigger an alert or temporary account lock (to mitigate brute force). We also monitor usage patterns to detect anomalies; for example, if a single reference link is accessed from many different IPs or locations in a short time (potential indicator of a leaked link), we could flag or disable that link. These heuristics lend an additional security layer. We will also conduct periodic security reviews – including vulnerability scans and possibly third-party penetration testing – to catch any new issues as the system evolves.</li>
+            <li><strong>Infrastructure Security:</strong> On the deployment side, we minimize open ports and keep software updated:
+              <ul>
+                <li>The application and database run in a secured environment. Firewalls/ security groups limit access (e.g., only port 443 for HTTPS is public; SSH or other management ports are either closed or restricted to our IPs).</li>
+                <li>We use containerization for deployment, and images are scanned for known vulnerabilities. Only trusted base images are used. Secrets (API keys, DB passwords) are injected via secure config (never baked into images).</li>
+                <li>Backups and any data exports are also encrypted. And when decommissioning any storage (should it happen), we have policies to securely wipe data.</li>
+              </ul>
+            </li>
+          </ul>
+          <p>By weaving these security measures throughout the architecture, we aim to make RefCheck a platform that clients can trust with their sensitive hiring data. Privacy isn’t just a checkbox – it’s built-in by design. For example, the choice to not require references to create accounts removes one vector of personal data storage (no need to keep references’ passwords or long-term profiles). And isolating each company’s data ensures a bug in one part of the code can’t accidentally show data from another company.</p>
+          <p>Finally, we ensure our practices align with standards: using TLS 1.2+/ modern cipher suites, regularly rotating keys where applicable, and preparing documentation for compliance (our Privacy Policy and internal data flow diagrams reflect the architecture decisions above). This comprehensive approach reduces risk and will facilitate obtaining security certifications (like SOC 2) if we pursue them as the product matures.</p>
+        </section>
+        <!-- Scalability & Performance -->
+        <section id="scalability-performance" class="section">
+          <div class="section-header">
+            <div class="icon">SC</div>
+            <div>
+              <h1 class="section-title">Scalability &amp; Performance</h1>
+              <p class="section-subtitle">Ensuring the system runs smoothly under load</p>
+            </div>
+          </div>
+          <p>From the outset, RefCheck’s architecture has been designed to handle not just the current expected load, but also surges in usage and future growth in user base. Here’s how we address scalability and performance at different levels of the stack:</p>
+          <ul>
+            <li><strong>Horizontal Scaling of Stateless Services:</strong> The web server (backend API) is stateless, meaning any instance can handle any request (user session is maintained via token, not in-memory session). This allows us to run multiple instances behind a load balancer, scaling out as traffic increases. In our cloud deployment, we may configure auto-scaling: e.g., if CPU or request latency goes beyond a threshold on current instances, spin up a new one. Similarly, the front-end being static can be served via CDN distributed globally, so static content loads fast for users in any region. The chatty part – the API calls – are to our servers, which we can also geo-distribute in future if needed (though initial target customers might be regional, so we can start with one region and expand).</li>
+            <li><strong>Efficient Database Access:</strong> We optimize our queries and use indexing to ensure the database can handle growing data. For example, we index by company and status on candidate and reference tables so that a recruiter loading their dashboard (which might show counts or quick stats) doesn’t trigger heavy full-table scans. We also foresee separating read vs write loads: our reference check workflow has many writes in bursts (when sending out requests and receiving responses), and reads mostly when recruiters view reports. We can introduce read replicas for the database if read traffic grows significantly (the app can direct report-loading queries to a replica). Additionally, using connection pooling and an ORM (Object-Relational Mapping) with caution to avoid N+1 query problems helps maintain performance. For reporting/analytics features (like computing “average turnaround time” across company), we might use caching or nightly batch jobs to pre-compute heavy stats rather than on-demand complex queries.</li>
+            <li><strong>Caching Mechanisms:</strong> While much of our data is dynamic (hard to cache long-term because a reference might submit any minute), there are opportunities for caching:
+              <ul>
+                <li>We cache static configuration like the reference question templates in memory, to avoid a DB call every time we need the list of questions (which is the same across all reference forms for now).</li>
+                <li>If a recruiter is frequently checking the same report, that summary doesn’t change – we could cache the rendered report for a short period (say 5 minutes) so subsequent requests don’t even hit the DB or recompute anything. Given our likely usage, this is a micro-optimization but could help if managers reopen reports often.</li>
+                <li>We also leverage HTTP caching on static assets – the front-end files have cache-busting hashes, allowing browsers and CDN to cache them essentially forever, reducing load on our servers and speeding up UX.</li>
+              </ul>
+            </li>
+            <li><strong>Concurrent Processing &amp; Queueing:</strong> The Node back-end, by virtue of its event loop and async nature, can handle many concurrent connections, but heavy tasks (like calling the AI API or sending emails) benefit from our queue system. If a hundred references all submit feedback within a 5-minute window, instead of trying to call OpenAI 100 times at once and possibly hitting rate limits, we enqueue those and process a controlled number concurrently (say 5 at a time). This smoothing mechanism prevents spikes from overwhelming external APIs or our own CPU. Likewise, if 500 invites go out simultaneously, we don’t open 500 SMTP connections at once – the job queue will throttle to a reasonable flow. This ensures the system remains responsive for users even under load.</li>
+            <li><strong>Performance Testing &amp; Optimization:</strong> We regularly conduct load tests. For instance, we simulate an agency adding 50 candidates and sending 200 reference invites in a short span to see how the system holds up. We monitor metrics: API response times, job queue backlog, DB query times. Any bottleneck identified leads to mitigation:
+              <ul>
+                <li>If CPU is a bottleneck on app servers, we increase instance size or count. If the database is maxing out CPU or I/O, we consider upgrading it or adding read replicas as mentioned.</li>
+                <li>We use application performance monitoring (APM) tools on our server code. These tell us if certain endpoints are slow (e.g., maybe our report generation endpoint is taking 3 seconds – if that’s due to unoptimized code, we fix it; if it’s waiting on AI API, we might need to adjust our approach, maybe generating partial results sooner).</li>
+              </ul>
+            </li>
+            <li><strong>CDN &amp; Edge Delivery:</strong> All the static content (front-end files, possibly generated PDFs for reports if we allow direct PDF downloads) are served via a Content Delivery Network when possible. This offloads work from our servers and dramatically speeds up load times for distributed users. For example, reference Linda clicking her email link in London will fetch the JS bundle from a European CDN edge node rather than from a US server, reducing latency before the form shows up.</li>
+          </ul>
+          <p>Our goal is to keep the user experience snappy. Recruiters should see their dashboard load in a second or two at most, and references should have no lag between answering a question and getting the next one. Using the above strategies, we aim to maintain that performance even as load grows. If, down the line, we find certain workloads growing disproportionately (e.g., the AI summary generation becomes a bottleneck), we can spin that off into a microservice or dedicated worker cluster without affecting the rest (thanks to our decoupled design).</p>
+          <p>Additionally, by staying alert to usage patterns and having auto-scaling in place, we can accommodate scenarios like a big customer onboard who suddenly adds thousands of candidates – the system will scale out and handle it, then scale back down to save costs. We’ve balanced using managed services (like the DB and CDN) to get auto-scaling and high performance out-of-the-box, with custom techniques (like job queuing and caching) to fine-tune throughput in our own application logic.</p>
+          <p>In summary, scalability and performance are not afterthoughts but integral to how we built RefCheck. This ensures that as we win more business and handle more reference checks, the tech won’t be the limiting factor. We’ll continue to measure and iterate on performance, but the architecture gives us confidence that we can grow smoothly.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#system-overview">System Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#architecture-overview">Architecture Diagram &amp; Components</a></li>
+        <li class="nav-item"><a class="nav-link" href="#frontend">Frontend Application</a></li>
+        <li class="nav-item"><a class="nav-link" href="#backend">Backend Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="#external-services">External Services &amp; Integrations</a></li>
+        <li class="nav-item"><a class="nav-link" href="#data-storage">Data Model &amp; Storage</a></li>
+        <li class="nav-item"><a class="nav-link" href="#security-privacy">Security &amp; Privacy</a></li>
+        <li class="nav-item"><a class="nav-link" href="#scalability-performance">Scalability &amp; Performance</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>

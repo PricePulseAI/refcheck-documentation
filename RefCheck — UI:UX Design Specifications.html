@@ -1,0 +1,780 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — UI/UX Design Specifications (v1.0)</title>
+  <meta name="description" content="RefCheck UI/UX Design Specs: Visual design, layout, and style guidelines for the RefCheck reference checking platform.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — UI/UX Design Specifications <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">UI Design</span>
+        <span class="chip">User Experience</span>
+        <span class="chip">Branding</span>
+        <span class="chip">Responsive</span>
+        <span class="chip">Accessibility</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#design-overview">Design Overview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#design-principles">Design Principles &amp; Goals</a></li>
+          <li class="nav-item"><a class="nav-link" href="#branding-style">Branding &amp; Visual Style</a></li>
+          <li class="nav-item"><a class="nav-link" href="#key-screens">Key Screens &amp; Components</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-dashboard">Recruiter Dashboard</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-email">Reference Invite Email</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-chat">Reference Chat Form</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-report">Report &amp; Analytics</a></li>
+          <li class="nav-item"><a class="nav-link" href="#accessibility-responsive">Accessibility &amp; Responsive</a></li>
+          <li class="nav-item"><a class="nav-link" href="#interaction-feedback">Interaction &amp; Feedback</a></li>
+          <li class="nav-item"><a class="nav-link" href="#assets-resources">UI Assets &amp; Resources</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- Design Overview -->
+        <section id="design-overview" class="section">
+          <div class="section-header">
+            <div class="icon">DO</div>
+            <div>
+              <h1 class="section-title">Design Overview</h1>
+              <p class="section-subtitle">A user-centric interface for fast, intuitive reference checks</p>
+            </div>
+          </div>
+          <p>RefCheck’s UI is designed to be clear, modern, and extremely easy to use for all parties involved. There are two primary user groups: internal **recruiters/HR** who manage reference checks, and external **reference providers** who give feedback. The interface caters to both:
+            recruiters get a clean dashboard to launch and track checks with minimal clicks, and references experience a friendly, guided **chat-style survey** that feels conversational rather than tedious. Overall, the design emphasizes **speed** (completing references in 24 hours or less, with each referee spending ~5 minutes) and **clarity** (each step is obvious and requires little to no training).</p>
+          <p>The application uses a **conversational design paradigm** where appropriate (for the reference questionnaire) to put users at ease and encourage candid input. At the same time, it maintains a professional and trustworthy look aligned with HR expectations (e.g. clean layouts, company branding present) so that both candidates and references feel confident in the process. All interactions – from sending reference invites to reviewing a final report – happen through a cohesive design language, ensuring a smooth experience without confusion or unnecessary complexity. In short, the UI/UX aims to turn a traditionally painful process into a seamless, even pleasant, workflow.</p>
+        </section>
+        <!-- Design Principles & Goals -->
+        <section id="design-principles" class="section">
+          <div class="section-header">
+            <div class="icon">DP</div>
+            <div>
+              <h1 class="section-title">Design Principles &amp; Goals</h1>
+              <p class="section-subtitle">Core values guiding the user experience</p>
+            </div>
+          </div>
+          <ul>
+            <li><strong>Ease of Use:</strong> Every interaction should feel intuitive. Recruiters can initiate and monitor checks without extensive training, and references can complete feedback with zero confusion. The UI avoids jargon and uses clear labels (e.g., “Send Reference Request” or “Submit Feedback”).</li>
+            <li><strong>Efficiency:</strong> Speed is a priority – minimizing the time and steps needed to accomplish tasks. For recruiters, sending out a reference questionnaire takes just a few fields and a click. For references, the chat interface streamlines giving feedback by prompting one question at a time and guiding them promptly through completion.</li>
+            <li><strong>Conversational &amp; Engaging:</strong> Especially for reference providers, the experience is designed to feel like a quick conversation rather than a formal survey. This principle increases engagement and candor. Friendly microcopy (e.g., the assistant says “Hi and thanks for helping us!”) and a chat bubble interface help put users at ease.</li>
+            <li><strong>Clarity &amp; Transparency:</strong> The design presents information in a structured and predictable way. Progress indicators (e.g., “Question 3 of 5”) ensure users know how much is left. Important messages (such as confidentiality notices or error hints) are prominently displayed. The report for recruiters clearly highlights key insights without burying information.</li>
+            <li><strong>Consistency &amp; Professionalism:</strong> All components of RefCheck share a consistent visual style and tone, reinforcing user confidence. Colors, typography, and spacing are uniform across the dashboard, emails, and forms. The UI integrates the hiring company’s branding (logo and name) in a tasteful way, giving a professional impression that reflects well on the company using RefCheck.</li>
+            <li><strong>Inclusivity &amp; Accessibility:</strong> The product is designed to be usable by a wide range of people, including those on mobile devices or with assistive technologies. Sufficient contrast, legible font sizes, and support for screen readers and keyboard navigation are built in (detailed in the Accessibility section). No user should be excluded or frustrated due to design choices.</li>
+          </ul>
+        </section>
+        <!-- Branding & Visual Style -->
+        <section id="branding-style" class="section">
+          <div class="section-header">
+            <div class="icon">BV</div>
+            <div>
+              <h1 class="section-title">Branding &amp; Visual Style</h1>
+              <p class="section-subtitle">Look and feel consistent with company branding and user trust</p>
+            </div>
+          </div>
+          <p>RefCheck’s visual design is clean, modern, and neutral enough to blend with a client company’s branding, while still providing a distinct, friendly interface. Key aspects of the visual style include:</p>
+          <h4>Color Palette</h4>
+          <p>The interface uses a balanced color scheme built around a primary blue and complementary accents:</p>
+          <ul>
+            <li><strong>Primary Blue (#0B63CE):</strong> Used for primary actions (e.g., buttons like “Send Invite” or “Submit”), highlights, and active states. This blue conveys trust and professionalism, aligning with typical corporate branding.</li>
+            <li><strong>Secondary Green (#00A36C):</strong> A secondary accent appearing in the brand gradient and success states. It’s used subtly – for example, in the header background gradient and to indicate completion or success (a checkmark icon might be green, success alerts have a green left border).</li>
+            <li><strong>Accent Purple (#7C3AED):</strong> A tertiary color used sparingly to draw attention to special elements (for instance, the “Powered by RefCheck” tag or AI-related highlights). It provides a touch of vibrancy without overwhelming the primary blue/green theme.</li>
+            <li><strong>Neutral Palette:</strong> Generous white and light grey backgrounds (e.g., #F6F6F7 for page background, #FFFFFF for cards and form surfaces) with mid-grey text (#4B5563) ensure readability. Borders and separators use light grey (#E5E7EB) for a subtle delineation of sections and fields.</li>
+            <li>By default, the app’s colors suffice for most companies, but in **white-label** scenarios, these can be customized. Company logos are displayed on the reference invitation and form, and colors are chosen to complement rather than clash with clients’ branding.</li>
+          </ul>
+          <h4>Typography &amp; Iconography</h4>
+          <p>The app uses a sans-serif font stack (system fonts like Segoe UI, Roboto, etc.), providing a clean, familiar look. Text hierarchy is achieved through size and weight rather than multiple font families. For example, section headers and card titles are slightly larger and bolder, while body text remains at a comfortable base size (~14-16px). All text is dark grey on light backgrounds for maximum legibility.</p>
+          <p>Icons are used sparingly and intentionally to reinforce meaning:
+            </p><ul>
+              <li><strong>Status Icons:</strong> Simple icons accompany statuses and flags. For instance, a green checkmark <span class="small">(✓)</span> denotes completed or positive feedback, a yellow caution symbol <span class="small">(⚠)</span> flags a potential concern, and a red stop icon <span class="small">(⛔)</span> marks a serious issue. These icons appear next to text labels or in tooltips, never on their own, so that color-blind users or those unfamiliar with the icon still have context from text.</li>
+              <li><strong>UI Icons:</strong> Common actions have intuitive icons (e.g., a “+” plus icon on the “New Reference Check” button, a filter icon for filtering lists, a download icon for “Export PDF”). We leverage a standard icon set (such as FontAwesome or similar) for consistency. Icons are kept moderate in size and neutral in color (using the text color) unless emphasizing an interactive hover state.</li>
+              <li><strong>Illustrations/Logos:</strong> The hiring company’s logo appears in the email header and at the top of the reference form page, scaled appropriately. If the company has no logo provided, a default RefCheck logo or placeholder initials are used. No other heavy graphics or illustrations are used in the workflow, keeping the design lightweight and focused on textual content.</li>
+            </ul>
+          <p></p>
+          <h4>Layout &amp; Spacing</h4>
+          <p>The design employs a card-based layout for grouping information. For example, on the recruiter dashboard, each candidate’s reference check may appear as a card or row with padded content and a subtle shadow on hover, reinforcing clickability. Forms and dialogs appear in centered panels or modals with rounded corners (12px radius) to match the friendly aesthetic.</p>
+          <p>Generous spacing is used to avoid a cramped feel: sections are separated by clear margins, and form fields and buttons have sufficient padding to be easily tappable. We maintain approximately 16px margins around most text blocks for readability. Lists and tables have row striping or dividing lines to help scan data.</p>
+          <p>Overall, the visual style is **consistent**: repeated components (buttons, inputs, alerts) look and behave the same throughout the app. For example, all primary buttons are the same blue with white text and a slight hover darkening; all alerts use the left-border color convention (blue for info, orange for warnings, green for success, red for errors) with matching icons. This consistency means once a user learns a pattern (e.g., a dotted underline indicates hoverable help text), they can predict it elsewhere, reducing cognitive load.</p>
+        </section>
+        <!-- Key Screens & Components -->
+        <section id="key-screens" class="section">
+          <div class="section-header">
+            <div class="icon">KS</div>
+            <div>
+              <h1 class="section-title">Key Screens &amp; Components</h1>
+              <p class="section-subtitle">Primary user interfaces and their elements</p>
+            </div>
+          </div>
+          <p>RefCheck’s user experience spans a few main screens/components, each optimized for its user’s needs. Below is an overview of each:</p>
+          <ul>
+            <li><strong>Recruiter Dashboard:</strong> The central hub for HR users to initiate new reference checks and monitor progress on ongoing ones. It lists all candidates undergoing references, and provides status at a glance (e.g., “2 of 3 references completed”).</li>
+            <li><strong>Reference Invitation Email:</strong> An email template that is sent to reference providers, branded with the hiring company’s identity. It contains a personalized request and a secure link for the reference to start the questionnaire.</li>
+            <li><strong>Reference Chat Form:</strong> The conversational reference collection interface on the web. This is where a reference provider answers questions in a chat-like format, one question at a time, with the AI assistant guiding the flow.</li>
+            <li><strong>Report &amp; Analytics:</strong> The results view for recruiters once references are in. It includes an AI-generated summary, the question-by-question feedback from all references (with any flags or highlights), and tools to export or share the report.</li>
+          </ul>
+        </section>
+        <!-- Recruiter Dashboard UI -->
+        <section id="screen-dashboard" class="section">
+          <h2>Recruiter Dashboard UI</h2>
+          <p>The recruiter dashboard is a web interface (desktop-optimized but responsive) that greets the internal user upon login. Its design focuses on giving **immediate insight** and quick actions. Key elements include:</p>
+          <ul>
+            <li><strong>Reference Check List:</strong> A table or card list of all reference checks in progress and recently completed. Each entry typically shows the candidate’s name, the job role, date started, and current status. Status is conveyed both in text (e.g., “2/3 Complete”) and color/icon – for example, <span class="muted">orange text</span> or a half-filled progress bar if some references are pending, turning <span class="muted">green</span> with a checkmark when all completed. This lets recruiters scan which candidates need attention.</li>
+            <li><strong>Quick Actions:</strong> Each reference check entry provides actions like “View Report” (opens the detailed report, even if not fully complete yet), and if references are still pending, a “Send Reminder” action. Icons (such as a paper-plane for reminder) with tooltips make these actions recognizable. The design ensures these action buttons are subtle but discoverable (e.g., appearing on hover or always shown as small icons to the right of each row).</li>
+            <li><strong>New Reference Check Flow:</strong> A prominent button labeled **“New Reference Check”** (often top-right of the dashboard) opens the workflow to create a new check. This could be a modal or separate page with a form (as described in the Setup section of the PRD). The UI guides the recruiter to input candidate name, email, role, and reference contact info, select a question template, etc. The design uses a multi-step form or well-grouped fields so that it doesn’t appear daunting. For instance, references’ contact fields might have an “Add another reference” button to dynamically add fields.</li>
+            <li><strong>Notifications &amp; Alerts:</strong> The dashboard surface also serves to notify the recruiter of important events. For example, if a reference responded, a non-intrusive alert (a green toast message at the bottom or a small badge on the candidate’s entry) indicates “Reference from John Doe received.” Errors, such as an invite email bouncing, are highlighted in context (the affected reference might show an error icon and an option to edit the address). These cues ensure the recruiter doesn’t miss anything critical upon opening the dashboard.</li>
+            <li><strong>Filtering and Sorting:</strong> If the HR team handles many candidates, the UI provides controls to filter or search. A search bar might let them find a candidate by name. Filter dropdowns can narrow the list (e.g., show only “Pending” checks or filter by job role or hiring manager). These controls are placed clearly at the top of the list and use common icons (like a funnel for filter, magnifying glass for search).</li>
+            <li><strong>Collaboration Indicators:</strong> In cases of multiple recruiters, the dashboard may indicate ownership or sharing. For example, each check might show the owner’s initials or name, or a lock icon if only that recruiter can view it. The UI aligns with RBAC rules from the PRD, ensuring users only see what they should. Design-wise, these indicators are subtle (muted text or an icon) to avoid clutter but available on hover for details (“Created by Rachel, last updated 2h ago”).</li>
+          </ul>
+          <p>Overall, the dashboard’s design balances **overview and control**. The top of the dashboard could also include a summary bar (especially for high-volume users) with KPIs like “Total Checks: 15 | Pending References: 4 | Completed Today: 3”, giving a quick health check of their pipeline. Everything on this screen is laid out to minimize the time a recruiter spends – they can get in, see what needs action, take that action, or quickly launch a new check, all in a few clicks.</p>
+        </section>
+        <!-- Reference Invitation Email -->
+        <section id="screen-email" class="section">
+          <h2>Reference Invitation Email</h2>
+          <p>This is the first touchpoint for a reference provider. The email’s design is simple, email-client friendly, and professional, with a touch of the company’s branding. Key characteristics:</p>
+          <ul>
+            <li><strong>Company Branding:</strong> The email uses the hiring company’s name and logo at the top of the message. Typically, the company logo appears as a small header image (left-aligned), and the text “<em>[Company Name] Reference Request</em>” is in the subject line and header, immediately letting the recipient know the context. The color scheme of the email sticks to neutral white background with black/gray text, and uses the company’s primary color or the RefCheck blue for the call-to-action button.</li>
+            <li><strong>Personalized Greeting:</strong> It opens with a greeting to the reference by name (e.g., “Dear John,” or “Hi John,”) to set a friendly tone. The first line establishes the connection: e.g., “<em>[Candidate Name]</em> has listed you as a reference for the <em>[Job Title]</em> position at <em>[Company Name]</em>.” This is in plain text (no images), ensuring it displays on all email clients.</li>
+            <li><strong>Concise Message:</strong> The body text briefly thanks the reference for their time and explains what is being asked. For example: “We’d greatly appreciate it if you could answer a short, 5-minute questionnaire about your experience working with [Candidate]. Your insights will help us in our hiring decision.” It also reassures about confidentiality (“Your feedback will be kept strictly confidential and only used by our hiring team.”). The tone is polite and appreciative.</li>
+            <li><strong>Clear Call-to-Action:</strong> A prominent button with wording like **“Provide Reference”** or **“Start Questionnaire”** is centered in the email. This button is typically in the primary brand color (blue) with white text, and has a decent touch target (bulletproof HTML/CSS for broad client compatibility). It links to the unique, secure survey URL. For clients that block images or styles, a fallback plain-text link is provided below the button (“Or paste this URL into your browser: [URL]”).</li>
+            <li><strong>Footer Information:</strong> The email closes with a polite thank-you (“Thank you for your time and help in our hiring process!”) and the sender’s identity. Usually this includes the name and title of the recruiter or hiring manager (e.g., “Sincerely, Rachel Adams, Talent Acquisition Manager, [Company]”). There’s also a line with contact info in case the reference has questions or issues (e.g., a reply-to email or phone number for HR). If required by compliance, an unsubscribe link or notice is included (though, since this email is transactional and expected, the tone is that this is a one-time request, not marketing).</li>
+            <li><strong>Mobile-Friendly:</strong> The email is designed in a single-column layout and tested on mobile devices. Fonts are a readable size (at least ~16px for body text on mobile), and the CTA button is large enough to tap. Any padding or margins ensure the content isn’t flush to the screen edges on a phone. Images (like the logo) have appropriate alt text (“[Company Name] logo”).</li>
+          </ul>
+          <p>The overall appearance is **professional and uncluttered** – mostly text on a white background, with one accent color used for the response button. This simplicity ensures the email loads quickly and looks consistent across email clients (Outlook, Gmail, mobile email apps, etc.). It also reduces the chance of being flagged as spam: the email is clearly a personal request, not a mass marketing mail, and the wording reflects that.</p>
+        </section>
+        <!-- Reference Chat Form UI -->
+        <section id="screen-chat" class="section">
+          <h2>Reference Chat Form UI</h2>
+          <p>The Reference Chat Form is the heart of the reference provider experience – a web page (mobile-responsive) where they answer the questionnaire. It’s designed to feel like a simple chat conversation with an assistant, leveraging familiar messaging app patterns. Key design and UX elements:</p>
+          <ul>
+            <li><strong>Welcome Screen:</strong> When the reference clicks the invite link, they arrive at a welcome page that’s branded with the company logo and colors. A brief title might say “Provide a Reference for [Candidate Name]” and include a one-line reassurance like “This will only take about 5 minutes.” A **“Start”** button or the first chat message prompt (“Hi [Reference Name]! ...”) invites them to begin. This page ensures the reference knows who and what it’s for before diving in.</li>
+            <li><strong>Chat Interface Layout:</strong> Once started, the screen resembles a chat window:
+              <ul>
+                <li>The **AI Assistant’s messages** (questions) appear as speech bubbles aligned to the left. They might have a subtle background color (light grey or a faint blue) and possibly an avatar icon (for example, the company’s logo or a generic chat icon) to indicate “this is the system speaking.”</li>
+                <li>The **reference’s responses** appear as bubbles aligned to the right (similar to how personal messages appear in iMessage/WhatsApp), in a contrasting shade (like company-themed light blue or green) to distinguish them. This left-right pattern visually separates questions and answers clearly.</li>
+              </ul>
+            After each answer is submitted, the reference sees their text in a bubble, then the next question bubble appears.
+            </li>
+            <li><strong>One Question at a Time:</strong> The form delivers questions sequentially to avoid overwhelming the user. Only one (or the current) question input is active at any time, usually displayed at the bottom of the chat window. The design uses a fixed position input field:
+              <ul>
+                <li>For open-ended questions: a simple text box appears with placeholder text like “Type your answer...” and a **Send** button (often an arrow icon) to submit. Hitting Enter/Return also sends the answer, mimicking chat behavior.</li>
+                <li>For multiple-choice or ratings: the UI presents those options as tappable chips or buttons above the text input. For example, a “Rate reliability 1-5” question might show five star icons or five buttons labeled 1 through 5 that the user can simply tap. If “Would you rehire?” is a multiple choice (Yes / With reservations / No), those three options could appear as selectable buttons. When selected, the choice is displayed as the user’s “sent” message.</li>
+              </ul>
+              This adaptive input method reduces effort – references don’t need to type when a simple selection suffices – and it ensures structured answers.
+            </li>
+            <li><strong>Guidance &amp; Probing:</strong> The conversational UI allows dynamic prompting. The assistant may post a follow-up question in the flow if needed. Design-wise, follow-ups appear as just another left-aligned bubble, often with a slight indent or a connecting line to indicate it’s linked to the previous question’s answer. For example, if the reference mentions “He needed to improve technical knowledge,” the assistant might respond with a bubble: “Thanks. Can you elaborate on the technical areas he needed help with?” This immediate branching keeps the flow natural. If the reference chooses not to elaborate, they can simply type a short answer or even “N/A” and move on.</li>
+            <li><strong>Progress Indicator:</strong> To manage expectations, the interface shows progress. This can be a small indicator at the top of the chat or in the header (“Question 2 of 5”) or a progress bar that fills as they answer questions. It provides context so the reference knows roughly how many questions remain, reducing drop-offs. The style is unobtrusive – e.g., a light progress bar below the header or a subtle text that updates with each question.</li>
+            <li><strong>Skip &amp; Save Options:</strong> Each question includes a way to skip if the reference truly cannot answer. This might be a **“Skip question”** link or button near the text input. Skipped questions might trigger a bubble that says “(Reference chose to skip this question)” or the assistant bubble might simply say “No problem, we’ll skip that one.” Additionally, if the user closes the form mid-way, the system saves their progress (answers submitted so far). When they reopen the same link, the chat can either resume where they left off or show a message like “Welcome back, shall we continue where you left off?” This ensures even busy references can come back without losing data. (From a design perspective, a small note might be shown like “Progress saved automatically.”)</li>
+            <li><strong>Review &amp; Edit Answers:</strong> After the last question, the assistant presents a **summary of all answers**. This appears as a list within the chat or a summary screen listing each question with the reference’s response. The design uses a distinct style for this summary – e.g., a card or simply a series of bubbles from the assistant summarizing: “Here’s what we’ve got...” followed by each Q&amp;A pair. Each answer may have an **“Edit”** option (like a small edit icon or an “Edit” link next to it) that, when clicked, allows the reference to modify their response to that question (either by scrolling the chat back to that position or by reopening the input for that question in place). This edit flow is made as simple as possible: the user doesn’t have to re-run the entire chat, just adjust the specific answer and reconfirm.</li>
+            <li><strong>Submission &amp; Confirmation:</strong> At the end of the summary review, a prominent **“Submit Reference”** button is provided. The reference must click this to finalize their feedback. Once submitted, the UI immediately displays a thank-you message: for example, a friendly illustrated icon (like a thumbs-up or checkmark) and text: “Thank you! Your reference for [Candidate] has been submitted.” The page also might note, “We appreciate your time. You may close this window.” Optionally, as per PRD, a quick satisfaction survey is shown: a row of 5 stars asking “How was your experience providing this reference?” The reference can rate it, and perhaps a textbox for additional comments (this is for our internal improvement, not seen by the recruiter). This feedback UI is minimal and skippable.</li>
+          </ul>
+          <p>Throughout the chat form, the design priorities are **simplicity and mobile usability**. The text is kept concise and friendly. On mobile, the chat bubbles fill most of the screen width, with ample padding for touch. On desktop, the chat is centered in a narrower container so it still feels intimate (often ~400px width like a chat app). There are no intrusive elements – no ads, no complex menus – just a straightforward flow. If at any point the reference encounters an error (e.g., their internet drops on submission), the UI shows a clear error state message in the chat (e.g., “Network issue – please check your connection and press Submit again”) with a retry option, ensuring they can complete the process.</p>
+        </section>
+        <!-- Report & Analytics UI -->
+        <section id="screen-report" class="section">
+          <h2>Report &amp; Analytics View</h2>
+          <p>Once all references for a candidate are in (or even as they come in, for interim viewing), the recruiter can view the compiled report. The design of this report focuses on clarity, compare-ability of responses, and highlighting of key insights. The Report view typically appears either as a dedicated page or a modal/dialog from the dashboard when “View Report” is clicked. Its design includes:</p>
+          <ul>
+            <li><strong>Header Summary:</strong> At the top, the AI-generated summary of the candidate’s references is prominently displayed. This might be styled as a block quote or a distinct highlighted section. For example, it could be a slightly shaded background with an “AI Summary” label, containing a few sentences summarizing strengths and weaknesses. Alongside this summary, there may be quick stats: e.g., a count of references received vs requested, and overall sentiment indicators. If an overall “reference score” or rating is calculated (though we avoid an explicit score, we might show something like a sentiment meter), it could be displayed here. For instance, a horizontal bar or icon indicating “Overall Sentiment: Positive” with a green dot. If any reference expressed serious concerns (flags), a small alert icon might appear near the summary with a tooltip like “Some cautionary feedback included.”</li>
+            <li><strong>Reference Details by Question:</strong> Below the summary, the feedback is structured question by question. Each question from the template is listed, with each reference’s answer shown for that question. There are a couple of possible layouts:
+              <ul>
+                <li><em>Tabular layout:</em> A table where each row is a question and each column is one reference’s answer, labeled by the reference’s name or role. This allows side-by-side comparison of how different references answered the same question. If there are many references (up to 6), the table can scroll horizontally on smaller screens or stack rows vertically on mobile (question followed by answers).</li>
+                <li><em>Stacked Q&amp;A layout:</em> Each question is a section heading, and beneath it, each reference’s answer is shown as a paragraph or bulleted item, prefaced with the reference’s name/relationship (e.g., “John Doe (Former Manager): [His answer].”). This is more vertical but ensures readability, especially if answers are long.</li>
+              </ul>
+              We often use a hybrid: on wider screens, answers render in a grid or table; on narrow screens, they stack. The UI uses subtle backgrounds or border lines to separate each question section.
+            </li>
+            <li><strong>Highlighting &amp; Flags:</strong> The report automatically emphasizes important points:
+              <ul>
+                <li>Any **flagged phrases or concerns** identified by AI are highlighted (e.g., yellow highlight on the text, or a caution icon right next to the sentence). For instance, if a reference wrote “sometimes late to meetings,” that phrase might be underlined in orange with a “⚠” icon. If the recruiter hovers or taps it, a tooltip might say “This was flagged as a potential concern.” This draws the recruiter’s eye to areas needing attention.</li>
+                <li>Sentiment analysis results can be indicated by color or icons near each answer or reference name. For example, next to each reference’s name we might show a small face icon: a green smiling face for predominantly positive feedback, a neutral face for mixed, etc., based on the sentiment score. This provides an at-a-glance sense of each reference’s tone without having to read every word.</li>
+              </ul>
+              Any critical red flags (like a “would not rehire” response) would be very clearly marked – perhaps the text itself in a red font or an urgent icon next to the reference’s name in the summary section (“Reference Mary indicated she would not rehire the candidate ⛔”).
+            </li>
+            <li><strong>Follow-up Suggestions:</strong> Leveraging the AI analysis, the UI may present a section for “Suggested Follow-ups” at the bottom of the report or inline with relevant answers. This could be styled as an info alert box or italicized text. For example: “<em>Follow-up suggestion:</em> Ask the candidate about their experience improving technical skills, since one reference noted initial struggles in that area.” These suggestions are clearly distinguished (perhaps with a lightbulb icon or a different font style) so that the recruiter knows this is guidance, not reference content.</li>
+            <li><strong>Collapsible/Expandable Sections:</strong> If some questions elicited very long answers, the UI might collapse them by default for readability, especially if viewing summary on a single page. Each answer could show the first line or two with a “Read more” expand option. This way, the recruiter can skim through quickly and only delve into the full text of interest. Alternatively, a “Expand All” toggle could let the recruiter switch between a concise view and a full view.</li>
+            <li><strong>Export &amp; Share Controls:</strong> At the top or bottom of the report view, there are actions for the recruiter:
+              <ul>
+                <li>**Download PDF:** A button (with a PDF or download icon) to export the entire report in a nicely formatted PDF. The PDF mirrors what’s on screen (the summary, Q&amp;A, etc.), using the same styling as much as possible, adjusted for print (company logo, candidate name and date on a cover page, etc.).</li>
+                <li>**Share Link:** If the recruiter wants to share the report with a hiring manager or others, the UI provides either a “Copy link” button or an “Add viewer” function. For simplicity, a “Copy Secure Link” could generate a unique URL that can be sent to others (as mentioned in the PRD scenario). The UI will indicate any access limitations (e.g., “Anyone with this link can view the reference report – expires in 7 days” to maintain confidentiality). This control is placed near the top, with a tooltip explaining it.</li>
+                <li>Possibly an **“Edit References”** action if any reference feedback was taken by phone and needs to be entered manually (though typically all feedback comes through the form, an admin might have this option). This would open an interface to input or adjust data, but such an option might be hidden for normal users to prevent tampering.</li>
+              </ul>
+            </li>
+          </ul>
+          <p>The visual style of the report prioritizes readability: plenty of whitespace, a clear different font or style for questions vs answers (e.g., questions in bold, answers in normal text). If using a table, alternating row colors or separators help distinguish between questions. The design is **print-friendly** – background colors and images are minimized so that when printed, it looks clean (the PDF export handles this primarily).</p>
+          <p>Finally, the report page may include navigation aids if accessed via the dashboard (like a “Back to Dashboard” link or breadcrumb at top). After reviewing, the recruiter can easily return to the candidate list. The overall UX ensures the recruiter can quickly extract insights – the AI summary and highlights do the heavy lifting, and the structured layout allows easy verification by reading actual comments.</p>
+        </section>
+        <!-- Accessibility & Responsive -->
+        <section id="accessibility-responsive" class="section">
+          <div class="section-header">
+            <div class="icon">AR</div>
+            <div>
+              <h1 class="section-title">Accessibility &amp; Responsive Design</h1>
+              <p class="section-subtitle">Inclusive design for all users and devices</p>
+            </div>
+          </div>
+          <p>RefCheck is built to be usable by anyone, regardless of device or ability. We adhere to accessibility best practices (aiming for WCAG 2.1 AA compliance) and ensure the UI works well on various screen sizes. Key considerations include:</p>
+          <ul>
+            <li><strong>Responsive Layout:</strong> Every page and component adjusts to different screen widths. On small mobile screens, layouts switch to single-column, and text and buttons enlarge for easy tapping. For instance, the recruiter dashboard collapses any multi-column tables into stackable cards (each showing candidate info and status vertically) or introduces horizontal scroll for overflow. The reference chat form was designed “mobile-first” – it occupies the full screen on a phone, with chat bubbles and input sized for touch. No element should require horizontal scrolling on a narrow device (except where data tables must scroll intentionally).</li>
+            <li><strong>Scalable Text:</strong> Users can zoom in (increase font size) without breaking the layout. We use relative font sizes (e.g., em, rem) so that if someone has larger default text settings or zooms to 200%, the content remains readable and appropriately laid out. Important text is never locked in an image; it’s actual text (for example, we wouldn’t put an important instruction as only part of a logo image, it would also be in text).</li>
+            <li><strong>Color &amp; Contrast:</strong> The color scheme is tested for contrast ratios. Primary text is a dark grey on white which is high contrast (meets AA standards). The blue and green accents are used in ways that still contrast against white or grey backgrounds (for instance, white text on the blue buttons is easily readable; blue text on white is used sparingly and typically in larger headings). We avoid color as the sole means of conveying information. Wherever color indicates status (green vs red highlights, etc.), there is also an icon or text label reinforcing it. For example, a “Pending” status might be orange but also explicitly say “Pending” next to it.</li>
+            <li><strong>Keyboard Navigation:</strong> The web app is operable with keyboard alone. Interactive elements (buttons, links, form fields) are focusable in a logical order. We’ve defined focus styles (a visible outline or highlight on focused buttons/fields) to help users see where they are. For example, a recruiter tabbing through the dashboard can jump between the New Check button, filter dropdown, each list item, etc., and activate them with Enter/Space. In the reference chat form, pressing “Tab” focuses the input field (or skip link) and pressing “Enter” submits an answer (as an alternative to clicking send).</li>
+            <li><strong>Screen Reader Support:</strong> We include appropriate ARIA labels and roles to make the experience comprehensible via screen readers:
+              <ul>
+                <li>The chat interface announces new questions to screen reader users (using ARIA live regions). For example, when a new question bubble appears, it’s marked as a live announcement so it’s read out automatically (“Question: What are the candidate’s strengths?”). This way, a visually impaired reference giver knows a question has been asked without having to find it manually.</li>
+                <li>All form inputs have associated labels. In the chat form, although visually the question itself might act as the label for the text input, we ensure that under the hood the input is labeled with the question text (or referenced via aria-labelledby) so the purpose of the textbox is clear (“Answer to: How would you describe their performance?”).</li>
+                <li>Images (like logos or icons) have descriptive alt text or aria-labels. For example, the company logo in the email and form has alt text “Company Logo”. Decorative icons that don’t impart new information are either given empty alt (so they’re skipped) or appropriate role=presentation.</li>
+                <li>Complex elements like the report table have additional context for screen readers (e.g., table headers for columns with reference names, so the screen reader can say “Question, Would you rehire? – Answer from John: Yes, definitely”).</li>
+              </ul>
+            </li>
+            <li><strong>Time &amp; Feedback:</strong> There are no unexpected time limits. Reference providers are not logged out if they take too long, and they can always resume via the same link if needed. Any dynamic updates (like a new question appearing) are done in a way that’s not disorienting. We avoid content that flashes or moves in a distracting way – e.g., a typing indicator in the chat might be shown, but it’s subtle and not a hazard (no rapid blinking). Also, all interactive feedback is provided in multiple ways: for example, when clicking the Submit button, not only does the button change state (“Submitting...” disabled state), but also an aria-live message might announce “Submitting, please wait”, so users know something is happening.</li>
+            <li><strong>Tested Scenarios:</strong> We test the UI with different accessibility settings:
+              <ul>
+                <li>High Contrast Modes (on Windows, etc.) to ensure our text is still visible (we rely on native OS rendering of buttons and form controls where possible, which adapt to these modes).</li>
+                <li>Zoom/Text Enlargement on mobile (iOS/Android accessibility text size settings) to ensure nothing is cut off or overlapping.</li>
+                <li>Screen reader navigation, as mentioned (with NVDA, JAWS, VoiceOver) to make sure the reading order and labels make sense in context.</li>
+              </ul>
+              Additionally, the design accommodates translation/localization in the future (for post-MVP), e.g., UI elements are coded to support longer text labels without breaking, even though v1 is English-only.
+            </li>
+          </ul>
+          <p>By embedding accessibility from the start, we not only accommodate users with disabilities but also improve overall UX (often, the app becomes more robust and user-friendly for everyone). The responsive design approach ensures that whether someone is on a large desktop screen, a tablet, or a small smartphone, they can interact with RefCheck with ease. This is particularly important because references might open the questionnaire on their phone during a break, or a hiring manager might quickly check a report on a tablet. We aim to provide a first-class experience on all such platforms.</p>
+        </section>
+        <!-- Interaction & Feedback -->
+        <section id="interaction-feedback" class="section">
+          <div class="section-header">
+            <div class="icon">IF</div>
+            <div>
+              <h1 class="section-title">Interaction &amp; Feedback</h1>
+              <p class="section-subtitle">Real-time responses and system feedback to user actions</p>
+            </div>
+          </div>
+          <p>To make RefCheck feel responsive and intuitive, the UI provides appropriate feedback for user actions and incorporates subtle animations where useful. We want users to always understand what’s happening (or if something is happening in the background) and feel confident that the system is responsive to their input. Here are some key interaction design elements:</p>
+          <ul>
+            <li><strong>Button States &amp; Transitions:</strong> All clickable elements have visual state changes. For instance, buttons use hover effects (a slightly darker shade of blue on hover for the primary button, and a subtle drop-shadow to indicate elevation) and an active state (perhaps a slight shrink or depress animation when clicked). This gives immediate feedback that the click was registered. After clicking a form submission button, it may turn into a loading state (with a spinner icon and label “Sending...” or “Submitting...”) to indicate the system is processing. Once done, it might transform into a success state (for example, turning green with a checkmark) briefly before either the next UI change or disabling entirely to prevent double submission.</li>
+            <li><strong>Loading Indicators:</strong> Whenever a background action takes more than a second, a loading indicator is shown. For example:
+              <ul>
+                <li>When the dashboard first loads data, a spinner or skeleton screens (grey placeholders) appear in the list until the data populates. This prevents the user from staring at a blank screen or thinking nothing is happening.</li>
+                <li>When the reference chat moves to the next question, there’s a deliberate but tiny delay to simulate a human-like response; we show three blinking dots “typing indicator” in the assistant’s bubble for, say, 0.5–1 second before the next question bubble appears. This not only makes the experience feel conversational but also avoids overwhelming the reference if the next question appears instantaneously.</li>
+                <li>If generating the AI summary on the report takes a moment, the UI might show a placeholder like “Analyzing responses...” with a small loading spinner in the summary area, then replace it with the generated text. This way, the recruiter sees that analysis is in progress and doesn’t think the section is missing.</li>
+              </ul>
+            </li>
+            <li><strong>Animations &amp; Transitions:</strong> We use animations to create a smooth experience, but always in a subtle, non-distracting manner:
+              <ul>
+                <li>Modal dialogs (like the “New Reference Check” form) slide down or fade in when opened, focusing the user’s attention, and conversely fade out when closed. This is quick (around 200ms) to avoid feeling sluggish.</li>
+                <li>Accordions or collapsible sections (if any in the report or templates) animate open/closed so content doesn’t jarringly appear or disappear.</li>
+                <li>Chat bubbles in the reference form slide up into view as they appear, similar to incoming messages on a phone. This not only looks natural but also provides a visual cue associated with new content. The scrolling container automatically scrolls to the newest message with a smooth animation, so the reference isn’t required to scroll manually; this is important on mobile to keep the latest question in view when the keyboard opens.</li>
+              </ul>
+            </li>
+            <li><strong>Error Handling &amp; Messages:</strong> If something goes wrong or input validation fails, the UI clearly informs the user:
+              <ul>
+                <li>Form Validation: If the recruiter leaves a required field blank when creating a reference check, that field’s border highlights in red and an inline message appears (e.g., “Email is required”). Error messages are written in plain language and, if possible, provide a remedy (“Please enter a valid email address”). We ensure focus moves to the first error so screen reader and keyboard users are alerted to it.</li>
+                <li>System Errors: If a network error occurs (unable to load data or send an invite), a notification banner or toast appears with an apology and a retry suggestion. For example, “Unable to send invitations. Check your connection and try again. [Retry]”. These are often styled as an alert (e.g., with an orange or red left border, and maybe an error icon) and appear at the top or bottom of the relevant area. Persistence: errors that require user action remain visible until dismissed or resolved.</li>
+              </ul>
+              No error should be silent; the user should never be left guessing why something didn’t happen. Conversely, once an error condition is resolved (e.g., user corrected the field), the error highlight is removed instantly to confirm that it’s fixed.
+            </li>
+            <li><strong>Notifications &amp; Confirmations:</strong> The system provides confirmations for key actions:
+              <ul>
+                <li>After a recruiter sends out reference requests, a brief success toast might appear: “Reference requests sent to 3 contacts.” Similarly, when all references for a candidate are received, an informational notification could appear on the dashboard or via email to the recruiter: “All references for [Candidate] are in! View the report.” In the UI, such notifications can be small and auto-dismiss after a few seconds, so as not to clutter, but are noticeable enough (sliding in from a corner or appearing under the header).</li>
+                <li>Some potentially destructive actions (if allowed in UI), like deleting a reference check or removing a reference contact, would prompt the user for confirmation in a modal: “Are you sure you want to remove this reference from the request?” to prevent mistakes. These confirmation dialogs are clear about the consequences and provide a cancel option.</li>
+              </ul>
+            </li>
+            <li><strong>Real-Time Updates:</strong> Where possible, the UI updates in real-time without requiring a full page refresh:
+              <ul>
+                <li>If the recruiter is viewing a candidate’s report while a reference submits their form, the system could dynamically load the new response into the report (perhaps with a subtle highlight on new content). At minimum, if the recruiter reopens the report, it will fetch the latest data. The design accounts for partial data as well – e.g., if only 2 out of 3 references responded, the report clearly shows which reference is still pending (maybe a placeholder “Awaiting response from [Name]”). The interface might also subtly encourage action, like showing a “Send Reminder” link next to that pending reference.</li>
+                <li>The dashboard list auto-refreshes at intervals or via push notifications. If a reference completed a survey, the candidate’s entry might update from “1/2 complete” to “2/2 complete” and change color (perhaps from in-progress orange to completed green) without the recruiter needing to press refresh. A small blink or fade animation on the updated entry can draw attention to the change.</li>
+              </ul>
+            </li>
+          </ul>
+          <p>All these interaction details contribute to making RefCheck feel snappy, modern, and user-friendly. We avoid gratuitous animations that waste time, focusing instead on those that provide feedback or guide the user’s attention. By managing states (hover, active, loading, success, error) carefully, we ensure the user always knows what’s happening. For example, a reference provider will see the chat typing indicator and know the next question is coming; a recruiter will see a disabled grayed-out “Send” button after clicking, so they won’t accidentally resend a request twice.</p>
+          <p>In essence, the UI tries to anticipate user needs: confirming actions when they’re done, validating input as it’s entered, hinting at next steps, and gracefully handling any hiccups. This anticipatory design reduces frustration and builds trust – users feel the app is reliable and “has things under control,” allowing them to focus on the content of references rather than the mechanics of the software.</p>
+        </section>
+        <!-- UI Assets & Resources -->
+        <section id="assets-resources" class="section">
+          <div class="section-header">
+            <div class="icon">UR</div>
+            <div>
+              <h1 class="section-title">UI Assets &amp; Resources</h1>
+              <p class="section-subtitle">Design deliverables and resources for development</p>
+            </div>
+          </div>
+          <p>To support implementation, we have a set of design assets and guidelines available for the development team. These ensure that the built product matches the intended design. The key resources include:</p>
+          <ul>
+            <li><strong>High-Fidelity Mockups:</strong> Complete visual mockups of all key screens (Dashboard, New Check form, Reference Chat, Report view, etc.) are provided in our design tool (e.g., Figma). The Figma file includes desktop and mobile layouts, annotated with spacing, font sizes, and colors. Developers can inspect these for exact CSS values (we have used consistent styles, many of which are indicated by the CSS variables listed earlier). The mockups also illustrate interactive states like button hover/active, error messages visibility, and an example of a chat in progress with the typing indicator, etc.</li>
+            <li><strong>Component Library &amp; Style Guide:</strong> A style guide document enumerates the standard UI components:
+              <ul>
+                <li>Typography styles (e.g., Heading1, Heading2, Body, Small text, etc., with font family and size, weight).</li>
+                <li>Color usage guidelines (primary, secondary, accent, and semantic colors for success/warning/error with their hex codes, which correspond to the CSS variables already in use).</li>
+                <li>Buttons (primary vs secondary vs text-only links) with examples of each state (default, hover, disabled).</li>
+                <li>Form fields (text inputs, dropdowns, checkboxes) with their default styles and focus/error states.</li>
+                <li>Alert boxes, modals, and card styles as seen in the app.</li>
+              </ul>
+              This is available as both a page in Figma and a PDF export for quick reference. It helps ensure consistency if components are built in a framework or custom – the devs can match these specs.
+            </li>
+            <li><strong>Icons and Images:</strong> We supply a set of icons used in the UI in SVG or icon-font format. This includes the checkmark, warning, and error symbols, plus any interface icons (e.g., download, filter, plus sign). We also include the company logo placeholder and “RefCheck” logo in SVG format (for use where appropriate, like the default branding if a company logo isn’t uploaded). All SVGs are optimized for web. If we are using an icon library (like FontAwesome), a list of required icon names is given so developers know which to include.</li>
+            <li><strong>Email Template Assets:</strong> The HTML/CSS for the reference invitation email is provided as a tested template. It includes inline CSS (for maximum email client compatibility) and placeholders for dynamic content (like candidate name, reference name, link URL). Also included: a separate company logo image file (likely a placeholder that gets swapped per client) and guidelines for email sending (e.g., via SendGrid templates or our system, which fields to substitute). We’ve tested this template on common clients (Gmail, Outlook, mobile) – a test results summary is included to warn devs of any quirks (for example, Outlook might ignore some border radius, which we’ve accounted for in design simplicity).</li>
+            <li><strong>Localization Framework (future-ready):</strong> Though v1 is English-only, our resource files include keys for all text shown in the UI (so developers should not hard-code strings). We provide a JSON/YAML with keys and English strings (and guidelines on length). For example: `invite_email.greeting = "Dear {name},"`, `chat.skip = "Skip question"`, etc. This ensures that if/when we translate into other languages, the UI can accommodate the text changes. In design, we tested extremes (like longer German phrases) by expanding text in the mocks to ensure layouts can handle them.</li>
+            <li><strong>Design Review &amp; QA Process:</strong> We note that the design team will be available to review implemented UIs. During development sprints, we can do UI reviews to catch any deviations. We’ve outlined in a checklist the main things to verify: pixel spacing, color values, font usage, etc., as well as interactive behavior. The developers are encouraged to reach out with any questions about interpreting the designs or if technical constraints require adjustments – the design is flexible and we prefer open communication to maintain fidelity and usability.</li>
+          </ul>
+          <p>All these assets are organized in the project’s shared drive. The Figma link and asset repository link have been provided to the dev lead (see project README or onboarding doc). By using these resources, the development team can implement the front-end to spec without guesswork. In addition, we have included sample JSON datasets (for example, a mock response payload for a reference report with multiple references) that can be used to populate the UI during development for testing state representations (like one reference vs five references, all positive vs some negative feedback scenarios). This will help ensure the UI gracefully handles all cases as designed.</p>
+          <p>In summary, everything the dev team needs to accurately build the UI – from exact hex colors to example content – is provided. Adhering to these will ensure that the polished, user-friendly design described in this document comes to life in the final product, delivering the intended experience to our users.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#design-overview">Design Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#design-principles">Design Principles &amp; Goals</a></li>
+        <li class="nav-item"><a class="nav-link" href="#branding-style">Branding &amp; Visual Style</a></li>
+        <li class="nav-item"><a class="nav-link" href="#key-screens">Key Screens &amp; Components</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-dashboard">Recruiter Dashboard</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-email">Reference Invite Email</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-chat">Reference Chat Form</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#screen-report">Report &amp; Analytics</a></li>
+        <li class="nav-item"><a class="nav-link" href="#accessibility-responsive">Accessibility &amp; Responsive</a></li>
+        <li class="nav-item"><a class="nav-link" href="#interaction-feedback">Interaction &amp; Feedback</a></li>
+        <li class="nav-item"><a class="nav-link" href="#assets-resources">UI Assets &amp; Resources</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>

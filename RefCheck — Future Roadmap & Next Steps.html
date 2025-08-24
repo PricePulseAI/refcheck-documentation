@@ -1,0 +1,582 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <!-- Strict CSP for a self-contained doc with inline CSS/JS allowed -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — Future Roadmap &amp; Next Steps (v1.0)</title>
+  <meta name="description" content="RefCheck Future Roadmap: planned enhancements, post-MVP features, and long-term vision for the reference checking platform beyond v1.0.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — Future Roadmap &amp; Next Steps <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">Future Features</span>
+        <span class="chip">Roadmap</span>
+        <span class="chip">Post-MVP</span>
+        <span class="chip">Backlog</span>
+        <span class="chip">Vision</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#mvp-recap">MVP Recap &amp; Scope</a></li>
+          <li class="nav-item"><a class="nav-link" href="#short-term">Short-Term Enhancements</a></li>
+          <li class="nav-item"><a class="nav-link" href="#future-features">Future Features &amp; Ideas</a></li>
+          <li class="nav-item"><a class="nav-link" href="#long-term-vision">Long-Term Vision</a></li>
+          <li class="nav-item"><a class="nav-link" href="#conclusion">Conclusion</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- MVP Recap & Scope -->
+        <section id="mvp-recap" class="section">
+          <div class="section-header">
+            <div class="icon">MV</div>
+            <div>
+              <h1 class="section-title">MVP Recap &amp; Scope</h1>
+              <p class="section-subtitle">What v1.0 delivers (and what it doesn’t)</p>
+            </div>
+          </div>
+          <p>RefCheck v1.0 (our MVP) focuses on solving the core problem: streamlining reference checks to be fast, easy, and insightful. To recap, the MVP provides:
+            </p><ul>
+              <li>A recruiter dashboard to initiate reference checks and track progress.</li>
+              <li>Automated email invitations and reminders to reference providers, with a user-friendly chat-style form for them to submit feedback.</li>
+              <li>An AI-driven summary report highlighting key sentiments and any flags from the references’ responses.</li>
+              <li>Basic integration touchpoints (webhooks/API) to connect with external systems like an ATS, and role-based access (recruiters vs. read-only viewers) for collaboration.</li>
+            </ul>
+          <p></p>
+          <p>This covers the essential workflow and addresses the primary pains identified. However, due to time and scope constraints, a few features were intentionally left out of v1.0:
+            </p><ul>
+              <li>**Advanced customization:** While we allow choosing question templates, deep customization (creating complex templates from scratch or conditional questions) is limited in MVP. We stuck to a standard set of questions to ensure consistency.</li>
+              <li>**Analytics dashboard:** v1.0 provides the individual report per candidate, but doesn’t include an aggregated analytics view (e.g., average scores across candidates or time-to-complete metrics) for HR leaders. That kind of analytic overview is slated for later once enough data is collected.</li>
+              <li>**In-app notifications &amp; chat:** The MVP relies on email for notifications. We did not build a real-time in-app notification system or a chat feature for recruiters to communicate within the app. Those were deemed lower priority until basic flow is solid.</li>
+              <li>**Extensive integration library:** Beyond the webhook and Zapier approach, we know clients may want native integrations (e.g., one-click integration with Greenhouse or Workday). In v1, we provide the building blocks via API but not turnkey native integrations.</li>
+            </ul>
+          <p></p>
+          <p>Understanding what’s not in v1.0 is crucial for planning the roadmap. The MVP gives us a strong foundation and validates the concept; next, we can build on this foundation by addressing these gaps and introducing enhancements that didn’t make the initial cut. The following sections outline those enhancements and the longer-term direction for RefCheck.</p>
+        </section>
+        <!-- Short-Term Enhancements -->
+        <section id="short-term" class="section">
+          <div class="section-header">
+            <div class="icon">ST</div>
+            <div>
+              <h1 class="section-title">Short-Term Enhancements</h1>
+              <p class="section-subtitle">Improvements planned soon after v1.0</p>
+            </div>
+          </div>
+          <p>In the immediate term (next 1-2 releases after v1.0), we aim to refine the product based on early user feedback and obvious quick wins that increase usability and value. These are features/enhancements that require relatively low effort but significantly improve the user experience or address initial limitations:</p>
+          <ul>
+            <li><strong>Template Customization UI:</strong> Provide recruiters with a simple UI to tweak or add a question to the reference survey. For example, a recruiter could add a role-specific question (“Rate their Java programming skills”) when initiating a check. While the backend can handle extra questions, we want to expose a friendly interface for this. Acceptance will be to ensure any custom question still integrates into the AI summary or is at least visible in the report.</li>
+            <li><strong>Improved Progress Alerts:</strong> Enhance notifications within the app – e.g., a badge or indicator on the dashboard when new references come in, and maybe a daily email summary if multiple checks are in progress (some of this was partly in MVP, but we’ll refine frequency and content of notifications to avoid overload while ensuring recruiters are informed).</li>
+            <li><strong>UI Polish &amp; UX Tweaks:</strong> Address minor UX issues observed in beta: for instance, making the “Skip question” link more obvious if references overlook it, adding an “Are you sure you want to skip?” confirm to prevent accidental skips, smoothing the scroll on the chat interface, etc. Also implement additional accessibility improvements if any were identified (like better screen reader labels or higher contrast on some text). These fall out of formal new features but are important for overall quality.</li>
+            <li><strong>Email Template Localization:</strong> Out of the gate, we had English-only emails. In the short term, we can introduce support for other languages in the email invite content, especially if targeting multi-lingual companies. Even if the platform UI remains English for now, having invites in the local language of the reference (provided we know their locale or the company’s locale) can increase response rates. This may involve creating a few translated templates or at least allowing customization of the invite text by the recruiter.</li>
+            <li><strong>Basic Reports Analytics:</strong> While a full analytics dashboard is later, we might quickly add a couple of stats to the recruiter dashboard as low-hanging fruit: e.g., “References completed in last 7 days” or an average completion time metric shown somewhere. This gives immediate reinforcement of the platform’s value (showing how quick turnarounds are) and doesn’t require heavy data engineering – just simple queries on existing data, to be displayed in the UI or even emailed weekly.</li>
+          </ul>
+          <p>These enhancements are targeted for a minor release (v1.1 perhaps) within a few weeks of the MVP launch. They focus on smoothing rough edges and adding slight flexibility. The goal is to respond to early feedback rapidly, showing users that we’re evolving the product to better meet their needs, while laying groundwork for the more substantial features to come.</p>
+        </section>
+        <!-- Future Features & Ideas -->
+        <section id="future-features" class="section">
+          <div class="section-header">
+            <div class="icon">FF</div>
+            <div>
+              <h1 class="section-title">Future Features &amp; Ideas</h1>
+              <p class="section-subtitle">Looking ahead to version 2.x and beyond</p>
+            </div>
+          </div>
+          <p>Beyond the immediate improvements, we have a roster of bigger features and ideas that we aim to incorporate as RefCheck grows. These will form the core of our roadmap for the next major version(s), subject to validation and priority based on user input and market demand:</p>
+          <ul>
+            <li><strong>Expanded Question Types &amp; Conditional Logic:</strong> Introduce different question formats (e.g., rating scales, multiple-choice within the chat flow) and the ability to branch the questionnaire based on answers. For instance, if a reference indicates a low score in a certain area, the next question could automatically probe for details. This makes the reference collection smarter and more tailored to responses. It requires more complex form logic and AI adaptation but can yield richer info.</li>
+            <li><strong>Multi-Language Platform Support:</strong> Not only localizing emails but the entire reference form and interface for both recruiters and references. Target languages would align with customer base (e.g., Spanish, French, German). We’d implement a language toggle or auto-detect based on user preference. Also ensure AI summaries can be generated in that language or at least that references can respond in their language and still get useful output (this might involve multilingual sentiment analysis capabilities).</li>
+            <li><strong>Built-in Video/Audio Reference Option:</strong> An idea to explore: allow references to record a short audio or video message as part of their feedback, especially if they find speaking easier than typing. The system could then either transcribe it for the report (using speech-to-text) or allow the recruiter to play it back. This could set us apart but requires careful consideration for storage and how AI summarization would handle it. Likely a feature for a later phase once core text-based checks are solid.</li>
+            <li><strong>AI-Powered Reference Chasing:</strong> Currently, reminders are time-based. In the future, we could use AI to decide when to send a reminder or even craft personalized reminder content. For example, if a reference started the form but didn’t finish, the reminder could acknowledge that (“You’re almost done, just 2 questions left!”). Or if they haven’t opened it at all, maybe try an SMS follow-up (with company permission). This smart automation can improve completion rates without manual recruiter intervention.</li>
+            <li><strong>360° Feedback Extension:</strong> Some companies might want to use a similar format for internal employee reviews or 360-feedback by peers. While not our primary use case, the platform could be extended to allow an internal request (manager sets up questions for team to answer about a colleague). This idea would expand our market from purely hiring into employee development. It’s a more distant possibility but one that leverages our tech in a new domain with minimal changes (mostly wording and templates differences).</li>
+          </ul>
+          <p>These future features range from enhancements of existing functionality to exploratory innovations. Each will be evaluated against user feedback and business impact. We maintain a dynamic backlog and periodically re-prioritize. Some ideas might be accelerated if a client specifically requests it or if competition pressures us, while others might remain as “wouldn’t it be nice” until the timing is right. Our development approach will remain iterative: implement the most promising idea, release it to users for feedback, and then refine or pivot as necessary.</p>
+        </section>
+        <!-- Long-Term Vision -->
+        <section id="long-term-vision" class="section">
+          <div class="section-header">
+            <div class="icon">LV</div>
+            <div>
+              <h1 class="section-title">Long-Term Vision</h1>
+              <p class="section-subtitle">Where we see RefCheck in the future</p>
+            </div>
+          </div>
+          <p>In the long run, we envision RefCheck not just as a tool for reference checking, but as a broader platform for verified, AI-enhanced insights in hiring and beyond. Our north star includes:</p>
+          <ul>
+            <li><strong>Definitive Reference Network:</strong> With enough adoption, RefCheck could facilitate a network where references (especially professional ones like former managers) become part of a trusted circle. Over time, we might allow users (references or candidates) to create profiles and track their reference history (with permissions). This network effect can reduce friction—for instance, a manager who frequently gives references can have a verified profile, so companies trust their input even more.</li>
+            <li><strong>Seamless ATS/HRIS Integration:</strong> We aim for RefCheck to fade into the background for recruiters, acting as a behind-the-scenes engine. Deep integrations with major ATS platforms would make initiating a ref check as simple as a checkbox in the ATS interface. Reports would appear in the ATS automatically. Essentially, RefCheck becomes an integrated service rather than a separate app for many users, which drives higher usage due to convenience.</li>
+            <li><strong>AI Coaching &amp; Decision Support:</strong> Beyond summarizing references, the AI could analyze patterns across candidates or give hiring recommendations. For example, if for a certain role, references consistently mention a particular skill as a weakness, the system could alert the recruiter to probe that area in interviews or training post-hire. Additionally, as we gather outcome data (did the hire succeed?), RefCheck could correlate reference feedback with actual job performance, closing the loop and improving its own recommendations on how to interpret reference feedback.</li>
+            <li><strong>Global Standard for References:</strong> We foresee a future where providing a reference through RefCheck becomes as common and standard as submitting a resume. To get there, we must build trust and recognition—perhaps through partnerships with professional networks or certification bodies. In the long term, a reference check might happen earlier in the hiring process or even be candidate-initiated (candidate provides a portfolio of references proactively via RefCheck, which has been pre-verified). Our platform could host those and allow candidates to share them securely with prospective employers.</li>
+            <li><strong>Expansion to Related Services:</strong> Once we have a foothold in the hiring workflow, we could expand horizontally. For instance, background checks, employment verification, or onboarding feedback surveys could be adjacent offerings—services that often occur around the same stage of hiring and can be integrated into one smooth experience for HR. The vision is to reduce the fragmentation in hiring admin tasks by offering a one-stop solution, with reference checking as the entry point.</li>
+          </ul>
+          <p>Achieving this vision will require careful scaling, continuous improvement of our AI capabilities, and maintaining a strong focus on user trust and data privacy. Every step—from what we build in the next sprint to how we support customers—should progressively move us toward this vision. It’s ambitious, but it gives us a clear direction: becoming an indispensable, intelligent layer in the hiring process that benefits employers, candidates, and references alike.</p>
+        </section>
+        <!-- Conclusion -->
+        <section id="conclusion" class="section">
+          <div class="section-header">
+            <div class="icon">CN</div>
+            <div>
+              <h1 class="section-title">Conclusion</h1>
+              <p class="section-subtitle">RefCheck today and tomorrow</p>
+            </div>
+          </div>
+          <p>With RefCheck v1.0, we are turning a traditionally cumbersome process into a streamlined, 21st-century experience. Our immediate focus is to ensure the MVP delivers real value: faster reference turnaround, better insights through AI, and a more pleasant experience for all users involved. By doing so, we’ll earn user trust and gather the feedback needed to iterate.</p>
+          <p>The roadmap ahead is filled with opportunities to enhance and expand the product. From incremental improvements like richer customization and deeper integrations, to bold moves like redefining how references are used in hiring decisions, RefCheck has a clear growth path. Each future feature will be carefully weighed and built with the same user-centric philosophy that guided v1.0.</p>
+          <p>In summary, the journey doesn’t end with the launch of v1.0—it’s just the beginning. We have laid a solid foundation and have a vision for RefCheck becoming a pivotal part of the hiring ecosystem. Through continuous innovation, close listening to our users, and a commitment to quality, we are confident that RefCheck will evolve into the go-to platform for trustworthy, efficient reference checking and beyond. Here’s to a successful launch and an exciting road ahead!</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#mvp-recap">MVP Recap &amp; Scope</a></li>
+        <li class="nav-item"><a class="nav-link" href="#short-term">Short-Term Enhancements</a></li>
+        <li class="nav-item"><a class="nav-link" href="#future-features">Future Features &amp; Ideas</a></li>
+        <li class="nav-item"><a class="nav-link" href="#long-term-vision">Long-Term Vision</a></li>
+        <li class="nav-item"><a class="nav-link" href="#conclusion">Conclusion</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>

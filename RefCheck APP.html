@@ -1,0 +1,985 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RefCheck - AI-Powered Reference Checking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B63CE',
+                        secondary: '#00A36C',
+                        accent: '#7C3AED',
+                        success: '#0F766E',
+                        warning: '#B45309',
+                        danger: '#B91C1C',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chat-bubble {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .typing-indicator {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9CA3AF;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-primary">RefCheck</h1>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <button onclick="showView('dashboard')" class="nav-link text-gray-900 dark:text-white px-3 py-2 text-sm font-medium">Dashboard</button>
+                        <button onclick="showView('templates')" class="nav-link text-gray-500 dark:text-gray-300 px-3 py-2 text-sm font-medium">Templates</button>
+                        <button onclick="showView('analytics')" class="nav-link text-gray-500 dark:text-gray-300 px-3 py-2 text-sm font-medium">Analytics</button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600 dark:text-gray-300">Rachel (Talent Acquisition)</span>
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-medium">R</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Reference Check Dashboard</h2>
+                        <p class="text-gray-600 dark:text-gray-300">Automate and streamline your reference checks with AI</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="showDemoModal()" class="bg-secondary text-white px-6 py-3 rounded-lg font-medium hover:bg-secondary/90 hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200">
+                            🎯 Try Demo
+                        </button>
+                        <button onclick="showCreateModal()" class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200">
+                            + New Reference Check
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                                <div class="w-6 h-6 text-green-600 dark:text-green-400">⚡</div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">18h</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Avg Turnaround</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                                <div class="w-6 h-6 text-blue-600 dark:text-blue-400">✓</div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">94%</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Response Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                                <div class="w-6 h-6 text-purple-600 dark:text-purple-400">👥</div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">12</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Active Checks</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                                <div class="w-6 h-6 text-orange-600 dark:text-orange-400">⏱</div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">85%</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Time Saved</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Checks List -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Reference Checks</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-900">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Candidate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Position</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Progress</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checks-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Templates View -->
+        <div id="templates-view" class="view hidden">
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Question Templates</h2>
+                        <p class="text-gray-600 dark:text-gray-300">Create and manage reference questionnaires</p>
+                    </div>
+                    <button onclick="showCreateTemplateModal()" class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                        + New Template
+                    </button>
+                </div>
+
+                <!-- AI Template Builder -->
+                <div class="bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-lg mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-accent rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white">🤖</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 dark:text-white">AI Template Builder</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Describe what you want to ask and get AI-generated questions</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <input type="text" placeholder="e.g., I want to ask about teamwork and leadership skills..." class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-base dark:bg-gray-700 dark:text-white">
+                        <button class="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90">Generate</button>
+                    </div>
+                </div>
+
+                <!-- Import Existing Form -->
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-warning rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white">📄</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 dark:text-white">Import Existing Form</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Upload a Word doc, Google Form, or paste your questions</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <input type="file" accept=".doc,.docx,.pdf,.txt" class="hidden" id="file-upload">
+                        <button onclick="document.getElementById('file-upload').click()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Upload File</button>
+                        <button onclick="showPasteModal()" class="px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning/90">Paste Questions</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Standard Professional</h3>
+                            <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-sm">Default</span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">5 essential questions covering performance, reliability, and teamwork</p>
+                        <div class="flex space-x-2">
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium">Edit</button>
+                            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium">Duplicate</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Customer Support</h3>
+                            <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-sm">Custom</span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">7 questions focused on customer interaction and problem-solving skills</p>
+                        <div class="flex space-x-2">
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium">Edit</button>
+                            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium">Duplicate</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Management Role</h3>
+                            <span class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded text-sm">Custom</span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">6 questions about leadership, team management, and strategic thinking</p>
+                        <div class="flex space-x-2">
+                            <button class="text-primary hover:text-primary/80 text-sm font-medium">Edit</button>
+                            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium">Duplicate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics View -->
+        <div id="analytics-view" class="view hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Analytics &amp; Insights</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Reference Response Trends</h3>
+                        <div class="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                            <div class="text-center">
+                                <div class="text-4xl mb-2">📊</div>
+                                <p>Response rate trending upward</p>
+                                <p class="text-sm">94% this month vs 87% last month</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Average Sentiment Scores</h3>
+                        <div class="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                            <div class="text-center">
+                                <div class="text-4xl mb-2">😊</div>
+                                <p>Overall positive sentiment</p>
+                                <p class="text-sm">8.3/10 average candidate score</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Reference Check Modal -->
+    <div id="create-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Create New Reference Check</h3>
+                <button onclick="hideCreateModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="create-form" onsubmit="createReferenceCheck(event)">
+                <div class="space-y-6">
+                    <!-- Candidate Information -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Candidate Information</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Candidate Name</label>
+                                <input type="text" name="candidateName" required="" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
+                                <input type="text" name="position" required="" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question Template</label>
+                        <select name="template" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                            <option value="standard">Standard Professional (5 questions)</option>
+                            <option value="customer-support">Customer Support (7 questions)</option>
+                            <option value="management">Management Role (6 questions)</option>
+                        </select>
+                    </div>
+
+                    <!-- References -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">References</h4>
+                        <div id="references-container">
+                            <div class="reference-entry grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                                    <input type="text" name="refName[]" required="" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                                    <input type="email" name="refEmail[]" required="" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Relationship</label>
+                                    <input type="text" name="refRelation[]" required="" placeholder="e.g., Former Supervisor" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addReference()" class="text-primary hover:text-primary/80 text-sm font-medium">+ Add Another Reference</button>
+                    </div>
+
+                    <!-- Settings -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Settings</h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="autoReminders" checked="" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Send automatic reminders after 2 days</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="notifyComplete" checked="" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Notify me when all references are complete</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-8">
+                    <button type="button" onclick="hideCreateModal()" class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90">
+                        Send Reference Requests
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reference Form View (Simulates the external reference form) -->
+    <div id="reference-form-view" class="hidden fixed inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 z-50 overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl">
+                <div class="p-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-white text-2xl">✓</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Reference Request</h2>
+                        <p class="text-gray-600 dark:text-gray-300">You've been asked to provide a reference for <strong id="ref-candidate-name">Alice Johnson</strong> applying for <strong id="ref-position">Customer Support Lead</strong></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">This should take about 5 minutes. Your responses are confidential.</p>
+                    </div>
+
+                    <div id="chat-container" class="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                        <!-- Chat messages will be added here -->
+                    </div>
+
+                    <div id="input-area" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <div class="flex space-x-3">
+                            <input type="text" id="reference-input" placeholder="Type your response..." class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-base dark:bg-gray-700 dark:text-white">
+                            <button onclick="submitReferenceResponse()" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">Send</button>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Press Enter to send</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report View -->
+    <div id="report-view" class="hidden fixed inset-0 bg-gray-50 dark:bg-gray-900 z-50 overflow-y-auto">
+        <div class="min-h-screen p-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                    <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Reference Report</h2>
+                                <p class="text-gray-600 dark:text-gray-300">AI-Generated Summary &amp; Analysis</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    Download PDF
+                                </button>
+                                <button onclick="hideReportView()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8">
+                        <div id="report-content">
+                            <!-- Report content will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center">
+            <span class="mr-2">✓</span>
+            <span id="notification-text">Success!</span>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Sample data
+        let referenceChecks = [
+            {
+                id: 1,
+                candidateName: "Alice Johnson",
+                position: "Customer Support Lead",
+                status: "completed",
+                progress: "3/3",
+                created: "2025-01-08",
+                sentiment: 0.93,
+                flags: 0
+            },
+            {
+                id: 2,
+                candidateName: "Bob Smith",
+                position: "Software Engineer",
+                status: "in-progress",
+                progress: "2/3",
+                created: "2025-01-09",
+                sentiment: null,
+                flags: 0
+            },
+            {
+                id: 3,
+                candidateName: "Carol Davis",
+                position: "Marketing Manager",
+                status: "pending",
+                progress: "0/3",
+                created: "2025-01-10",
+                sentiment: null,
+                flags: 0
+            }
+        ];
+
+        const questions = {
+            standard: [
+                "How do you know the candidate and in what context did you work together?",
+                "What are the candidate's greatest strengths?",
+                "What areas could they improve upon?",
+                "How would you rate their reliability and work quality?",
+                "Would you rehire this candidate? Why or why not?"
+            ]
+        };
+
+        let currentQuestionIndex = 0;
+        let currentAnswers = [];
+        let currentCandidateData = {};
+
+        // Navigation
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-gray-900', 'dark:text-white');
+                link.classList.add('text-gray-500', 'dark:text-gray-300');
+            });
+            event.target.classList.remove('text-gray-500', 'dark:text-gray-300');
+            event.target.classList.add('text-gray-900', 'dark:text-white');
+        }
+
+        // Modal functions
+        function showCreateModal() {
+            document.getElementById('create-modal').classList.remove('hidden');
+        }
+
+        function hideCreateModal() {
+            document.getElementById('create-modal').classList.add('hidden');
+            document.getElementById('create-form').reset();
+            // Reset references to just one
+            const container = document.getElementById('references-container');
+            const entries = container.querySelectorAll('.reference-entry');
+            for (let i = 1; i < entries.length; i++) {
+                entries[i].remove();
+            }
+        }
+
+        function showCreateTemplateModal() {
+            showNotification('Template creation feature coming soon!');
+        }
+
+        // Demo Mode Function
+        function showDemoModal() {
+            // Create a demo reference check instantly
+            const demoCheck = {
+                id: 999,
+                candidateName: "Demo Candidate",
+                position: "Customer Support Specialist",
+                status: "completed",
+                progress: "3/3",
+                created: new Date().toISOString().split('T')[0],
+                sentiment: 0.89,
+                flags: 0
+            };
+            
+            // Show demo in action
+            showNotification('🎯 Demo Mode: Launching instant reference check...');
+            
+            setTimeout(() => {
+                showNotification('Demo reference check completed! Click "View Report" to see AI analysis.');
+                // Add demo to the top of the list temporarily
+                referenceChecks.unshift(demoCheck);
+                updateChecksTable();
+            }, 2000);
+        }
+
+        function showPasteModal() {
+            showNotification('📋 Paste questions feature - Coming soon! AI will analyze and format your existing questions.');
+        }
+
+        function addReference() {
+            const container = document.getElementById('references-container');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'reference-entry grid grid-cols-1 md:grid-cols-3 gap-4 mb-4';
+            newEntry.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                    <input type="text" name="refName[]" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                    <input type="email" name="refEmail[]" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                </div>
+                <div class="flex space-x-2">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Relationship</label>
+                        <input type="text" name="refRelation[]" required placeholder="e.g., Former Supervisor" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-base dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="removeReference(this)" class="px-3 py-2 text-red-600 hover:text-red-800 text-sm">Remove</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newEntry);
+        }
+
+        function removeReference(button) {
+            button.closest('.reference-entry').remove();
+        }
+
+        // Create reference check
+        function createReferenceCheck(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const newCheck = {
+                id: referenceChecks.length + 1,
+                candidateName: formData.get('candidateName'),
+                position: formData.get('position'),
+                status: 'pending',
+                progress: '0/' + formData.getAll('refName[]').length,
+                created: new Date().toISOString().split('T')[0],
+                sentiment: null,
+                flags: 0,
+                references: formData.getAll('refName[]').map((name, index) => ({
+                    name,
+                    email: formData.getAll('refEmail[]')[index],
+                    relation: formData.getAll('refRelation[]')[index],
+                    status: 'pending'
+                }))
+            };
+
+            referenceChecks.unshift(newCheck);
+            updateChecksTable();
+            hideCreateModal();
+            showNotification('Reference requests sent successfully!');
+        }
+
+        // Update checks table
+        function updateChecksTable() {
+            const tbody = document.getElementById('checks-table');
+            tbody.innerHTML = '';
+
+            referenceChecks.forEach(check => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+                
+                let statusBadge = '';
+                let actionButton = '';
+                
+                if (check.status === 'completed') {
+                    statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Completed</span>';
+                    actionButton = `<button onclick="viewReport(${check.id})" class="text-primary hover:text-primary/80 text-sm font-medium">View Report</button>`;
+                } else if (check.status === 'in-progress') {
+                    statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">In Progress</span>';
+                    actionButton = `<button onclick="simulateReferenceForm(${check.id})" class="text-primary hover:text-primary/80 text-sm font-medium">Continue</button>`;
+                } else {
+                    statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">Pending</span>';
+                    actionButton = `<button onclick="simulateReferenceForm(${check.id})" class="text-primary hover:text-primary/80 text-sm font-medium">Start Demo</button>`;
+                }
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-medium">
+                                    ${check.candidateName.charAt(0)}
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">${check.candidateName}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created ${check.created}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${check.position}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${check.progress}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${actionButton}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Simulate reference form
+        function simulateReferenceForm(checkId) {
+            const check = referenceChecks.find(c => c.id === checkId);
+            if (!check) return;
+
+            currentCandidateData = check;
+            currentQuestionIndex = 0;
+            currentAnswers = [];
+
+            document.getElementById('ref-candidate-name').textContent = check.candidateName;
+            document.getElementById('ref-position').textContent = check.position;
+            
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.innerHTML = '';
+            
+            document.getElementById('reference-form-view').classList.remove('hidden');
+            
+            // Start with greeting
+            setTimeout(() => {
+                addChatMessage('bot', `Hi! I'm assisting ${check.candidateName.split(' ')[0]}'s potential employer with collecting reference feedback. This should only take about 5 minutes of your time.`);
+                setTimeout(() => {
+                    addChatMessage('bot', `Let's start with the first question:`);
+                    setTimeout(() => {
+                        askNextQuestion();
+                    }, 1000);
+                }, 1500);
+            }, 500);
+
+            // Enable enter key
+            document.getElementById('reference-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitReferenceResponse();
+                }
+            });
+        }
+
+        function addChatMessage(sender, message) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-bubble flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            const bubbleClass = sender === 'user' 
+                ? 'bg-primary text-white ml-12' 
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white mr-12';
+            
+            messageDiv.innerHTML = `
+                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${bubbleClass}">
+                    <p class="text-sm">${message}</p>
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function askNextQuestion() {
+            if (currentQuestionIndex < questions.standard.length) {
+                // Show typing indicator first
+                showTypingIndicator();
+                
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const question = questions.standard[currentQuestionIndex];
+                    addChatMessage('bot', `${currentQuestionIndex + 1}. ${question}`);
+                }, 800); // 0.8 second delay as specified in design doc
+            }
+        }
+
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chat-container');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-bubble flex justify-start';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white mr-12">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function submitReferenceResponse() {
+            const input = document.getElementById('reference-input');
+            const response = input.value.trim();
+            
+            if (!response) return;
+            
+            addChatMessage('user', response);
+            input.value = '';
+            
+            currentAnswers.push({
+                question: questions.standard[currentQuestionIndex],
+                answer: response
+            });
+            
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.standard.length) {
+                setTimeout(() => {
+                    addChatMessage('bot', "Thank you for that insight.");
+                    setTimeout(() => {
+                        askNextQuestion();
+                    }, 1000);
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    addChatMessage('bot', "Perfect! That's all the questions. Thank you for taking the time to provide this valuable feedback.");
+                    setTimeout(() => {
+                        finishReferenceForm();
+                    }, 2000);
+                }, 500);
+            }
+        }
+
+        function finishReferenceForm() {
+            document.getElementById('input-area').innerHTML = `
+                <div class="text-center py-4">
+                    <div class="text-green-600 dark:text-green-400 text-lg mb-2">✓ Reference Submitted</div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Thank you for your time! Your feedback has been securely submitted.</p>
+                    <button onclick="hideReferenceForm()" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">Close</button>
+                </div>
+            `;
+
+            // Update the check status
+            const check = referenceChecks.find(c => c.id === currentCandidateData.id);
+            if (check) {
+                check.status = 'completed';
+                check.progress = '3/3';
+                check.sentiment = 0.85 + Math.random() * 0.15; // Simulate positive sentiment
+                updateChecksTable();
+            }
+
+            showNotification('Reference submitted successfully!');
+        }
+
+        function hideReferenceForm() {
+            document.getElementById('reference-form-view').classList.add('hidden');
+        }
+
+        // View report
+        function viewReport(checkId) {
+            const check = referenceChecks.find(c => c.id === checkId);
+            if (!check) return;
+
+            const reportContent = document.getElementById('report-content');
+            reportContent.innerHTML = `
+                <div class="space-y-8">
+                    <!-- Candidate Info -->
+                    <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">${check.candidateName}</h3>
+                        <p class="text-gray-600 dark:text-gray-300">${check.position}</p>
+                        <div class="mt-4 flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Overall Sentiment:</span>
+                                <span class="ml-2 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded text-sm font-medium">Positive (${(check.sentiment * 10).toFixed(1)}/10)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Red Flags:</span>
+                                <span class="ml-2 px-2 py-1 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded text-sm font-medium">${check.flags}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Summary -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">🤖 AI-Generated Summary</h3>
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border-l-4 border-blue-500">
+                            <p class="text-gray-700 dark:text-gray-300">
+                                ${check.candidateName}'s references consistently praise their reliability and ${check.position.toLowerCase()} skills. 
+                                All references highlighted their strong work ethic and positive team collaboration. 
+                                One reference noted minor areas for improvement in technical knowledge, but emphasized this didn't impact overall performance. 
+                                All references indicated they would gladly work with ${check.candidateName.split(' ')[0]} again and recommend them for the role.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Responses -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">📝 Reference Responses</h3>
+                        <div class="space-y-6">
+                            ${questions.standard.map((question, index) => `
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">${index + 1}. ${question}</h4>
+                                    <div class="space-y-3">
+                                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Reference 1 - Former Supervisor</div>
+                                            <p class="text-sm text-gray-700 dark:text-gray-300">${getSampleAnswer(index, 0, check.candidateName)}</p>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Reference 2 - Colleague</div>
+                                            <p class="text-sm text-gray-700 dark:text-gray-300">${getSampleAnswer(index, 1, check.candidateName)}</p>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Reference 3 - Team Member</div>
+                                            <p class="text-sm text-gray-700 dark:text-gray-300">${getSampleAnswer(index, 2, check.candidateName)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">💡 Hiring Recommendations</h3>
+                        <div class="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
+                            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                                <li class="flex items-start">
+                                    <span class="text-green-600 dark:text-green-400 mr-2">✓</span>
+                                    Strong candidate with consistent positive feedback across all references
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 dark:text-green-400 mr-2">✓</span>
+                                    Excellent team collaboration and reliability noted by all references
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-yellow-600 dark:text-yellow-400 mr-2">!</span>
+                                    Consider discussing technical skill development during onboarding
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 dark:text-green-400 mr-2">✓</span>
+                                    All references would rehire - strong indicator of future success
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('report-view').classList.remove('hidden');
+        }
+
+        function getSampleAnswer(questionIndex, referenceIndex, candidateName) {
+            const firstName = candidateName.split(' ')[0];
+            const answers = [
+                [
+                    `I was ${firstName}'s direct supervisor for 2 years at XYZ Corp. We worked closely on customer support initiatives.`,
+                    `${firstName} and I were colleagues in the customer support team. I had the chance to collaborate with them on several projects.`,
+                    `I worked alongside ${firstName} for about 18 months. They were always helpful and professional.`
+                ],
+                [
+                    `${firstName} has exceptional empathy and communication skills. They consistently exceeded customer satisfaction targets and showed great problem-solving abilities.`,
+                    `Their greatest strength is definitely their reliability. ${firstName} always followed through on commitments and was someone you could count on.`,
+                    `What stood out most was their positive attitude and willingness to help team members. ${firstName} created a great work environment.`
+                ],
+                [
+                    `If anything, ${firstName} could benefit from deeper technical product knowledge, but they were always eager to learn and improve.`,
+                    `Sometimes ${firstName} needed a bit more guidance on complex issues, but they were very receptive to feedback.`,
+                    `I'd say time management during busy periods could be improved, though this rarely affected their output quality.`
+                ],
+                [
+                    `I'd rate ${firstName} 5/5 for reliability. They were one of our most dependable team members and consistently delivered high-quality work.`,
+                    `Definitely a 4/5. ${firstName} was very reliable and their work quality was consistently good throughout our time working together.`,
+                    `I'd give them a solid 4/5. Very dependable and their work was always well-done and on time.`
+                ],
+                [
+                    `Absolutely yes, without hesitation. ${firstName} would be a valuable addition to any team and I'd welcome the opportunity to work with them again.`,
+                    `Yes, definitely. ${firstName} is the kind of employee every manager wants - reliable, positive, and effective.`,
+                    `I would certainly rehire ${firstName}. They brought a lot of value to our team and would do the same elsewhere.`
+                ]
+            ];
+            return answers[questionIndex]?.[referenceIndex] || 'Great question - I had a very positive experience working with them.';
+        }
+
+        function hideReportView() {
+            document.getElementById('report-view').classList.add('hidden');
+        }
+
+        // Notifications
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            text.textContent = message;
+            
+            notification.classList.remove('translate-x-full');
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateChecksTable();
+        });
+    </script>
+
+
+</body></html>

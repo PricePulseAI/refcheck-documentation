@@ -1,0 +1,915 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <!-- Strict CSP for a self-contained doc with inline CSS/JS allowed -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — User Stories &amp; Feature Breakdown (v1.0)</title>
+  <meta name="description" content="RefCheck User Stories: Detailed feature breakdown into user stories with acceptance criteria, guiding development to meet product requirements.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — User Stories &amp; Feature Breakdown <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">Use Cases</span>
+        <span class="chip">Feature Specs</span>
+        <span class="chip">Acceptance Criteria</span>
+        <span class="chip">Agile</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#story-overview">Overview</a></li>
+          <li class="nav-item"><a class="nav-link" href="#setup-initiation">Setup &amp; Initiation</a></li>
+          <li class="nav-item"><a class="nav-link" href="#reference-feedback">Reference Feedback Collection</a></li>
+          <li class="nav-item"><a class="nav-link" href="#analysis-review">Analysis &amp; Review</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tracking-management">Tracking &amp; Management</a></li>
+          <li class="nav-item"><a class="nav-link" href="#collaboration-permissions">Collaboration &amp; Permissions</a></li>
+          <li class="nav-item"><a class="nav-link" href="#integration-automation">Integration &amp; Automation</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- Story Overview -->
+        <section id="story-overview" class="section">
+          <div class="section-header">
+            <div class="icon">US</div>
+            <div>
+              <h1 class="section-title">Overview</h1>
+              <p class="section-subtitle">Translating PRD features into actionable user stories</p>
+            </div>
+          </div>
+          <p>This document breaks down RefCheck’s product requirements into specific <strong>user stories</strong> – concise descriptions of desired functionality from an end-user’s perspective. Each user story is accompanied by acceptance criteria that define when the story is considered implemented successfully. These stories serve as a bridge between the high-level Product Requirements Document (PRD) and the actual engineering tasks, ensuring the development team clearly understands the scope and expectations of each feature.</p>
+          <p>The user stories are grouped by major feature areas of RefCheck, aligning with the MVP features and user personas identified in the PRD. Our primary personas, <em>Rachel (Recruiter)</em> and <em>Mark (Small Business Owner)</em>, inform many of these stories, as do the perspective of a reference provider using the system. Each story follows the format: <strong>As a [type of user], I want [some goal] so that [benefit].</strong> This keeps the focus on delivering user value.</p>
+          <p><strong>Acceptance Criteria</strong> – for each story, we list specific conditions that must be met for the feature to be accepted. Think of these as checklist items or scenarios that QA will test. They often cover normal cases as well as edge cases (e.g., “what if the reference’s email is invalid?” or “what if the AI cannot generate a summary?”). Meeting all acceptance criteria means the story is done and the feature should satisfy the intended user need without issues.</p>
+          <p>By implementing all the following stories, we will effectively cover the functionality described in the PRD (v1.0), delivering a cohesive product. The development team can take these stories into sprint planning, estimate them, and build iteratively while ensuring nothing falls through the cracks. Let’s dive into the breakdown:</p>
+        </section>
+        <!-- Setup & Initiation -->
+        <section id="setup-initiation" class="section">
+          <div class="section-header">
+            <div class="icon">SI</div>
+            <div>
+              <h1 class="section-title">Setup &amp; Initiation</h1>
+              <p class="section-subtitle">Creating and configuring reference checks</p>
+            </div>
+          </div>
+          <p><em>Feature scope:</em> These stories cover how a recruiter or hiring manager starts a new reference check process, configures the questionnaire, and initiates sending requests. It includes template selection and any preliminary steps like giving candidates a heads-up or using a demo mode.</p>
+          <ul>
+            <li><strong>As a recruiter, I can create a new reference check for a candidate in minutes</strong> (entering candidate info and their references’ contact details), <strong>so that</strong> I can quickly kick off the vetting process without delays.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The system provides a clear form to input candidate name, role, and at least 2 reference contacts (name, email, relationship).</li>
+                    <li>Form can dynamically add more reference fields (up to a sensible limit, e.g., 5) in case I have more references to check.</li>
+                    <li>After submission, a confirmation is shown (e.g., “Reference requests sent for Alice Johnson”) and the new reference check appears on my dashboard with status “In Progress”.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can choose or customize the questionnaire template for a reference check</strong>, <strong>so that</strong> the questions asked are relevant to the role.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The system offers a default “Standard 5-question Template” by default, but I have an option to select other templates (if available) from a dropdown or list when initiating the check.</li>
+                    <li>I can preview the questions in a template before confirming. (For example, seeing the list of 5 questions that will be sent.)</li>
+                    <li>If I need a custom question, I can add or edit questions in a simple interface (P1 scope: at least one custom question can be inserted). The system validates that custom questions are not blank and are answerable with the available input types.</li>
+                    <li>If no template changes are made, the default template is used. Template selection is remembered per user for convenience (nice-to-have).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I want the system to ensure reference contact info is valid before sending requests</strong>, <strong>so that</strong> I don’t mistakenly send a request to a wrong or malformed email.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>If I enter an email in an invalid format (e.g., missing “@” or domain), the form should flag it and prevent me from submitting until corrected.</li>
+                    <li>If I accidentally duplicate the same email for two reference entries, the system warns me (but still lets me proceed if I confirm, in case two different people share an email, though unlikely).</li>
+                    <li>If the company domain has a blocklist (say, personal emails not allowed), the system warns accordingly. (This criterion might be skipped for v1 unless such rules are defined.)</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a new user, I can try out RefCheck in a demo mode with sample data</strong>, <strong>so that</strong> I understand what the final report looks like without having to wait for real references.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>A “Launch Demo” or similar button is available on first login or in the dashboard. Clicking it creates a fake candidate (e.g., “John Doe – Demo”) with two sample references.</li>
+                    <li>The system auto-fills sample answers and immediately marks the reference check complete, generating a sample report I can view.</li>
+                    <li>The demo is clearly labeled (so I won’t confuse it with real data), and it does not send any emails. It can be deleted easily after viewing.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can configure when and how reference requests are sent</strong>, <strong>so that</strong> I maintain control over timing (e.g., send immediately or schedule for later).
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>By default, upon creating a reference check, emails are sent immediately to each reference. There is a visible confirmation of this (perhaps listing “Invited on DATE, will resend in 2 days if no response”).</li>
+                    <li>(P1) I have the option to schedule the send (for example, I could set “Send invitations on Monday 9am” if I’m setting it up on a weekend). If scheduled, the system queues them and clearly shows the scheduled time.</li>
+                    <li>The system automatically handles sending a reminder email at the set interval (e.g., 2 days later) if a reference hasn’t responded. This behavior is either default or configurable globally (for v1, it can be default behavior). I can see this setting in the UI (even if it’s just informational in v1).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+        <!-- Reference Feedback Collection -->
+        <section id="reference-feedback" class="section">
+          <div class="section-header">
+            <div class="icon">RF</div>
+            <div>
+              <h1 class="section-title">Reference Feedback Collection</h1>
+              <p class="section-subtitle">Gathering input via a conversational form</p>
+            </div>
+          </div>
+          <p><em>Feature scope:</em> These stories capture the experience of the reference who receives the request. The goal is to make it easy, quick, and clear for them to provide feedback. It covers the email invite, the secure web form, and the conversational interface, including any guidance or ability to skip questions.</p>
+          <ul>
+            <li><strong>As a reference provider, I receive a clear email request for feedback</strong>, <strong>so that</strong> I understand who it’s for and trust that it’s legitimate.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The invitation email includes the candidate’s name and the company’s name in the subject and greeting (e.g., “Reference Request for Alice Johnson at ABC Corp”).</li>
+                    <li>The email content briefly explains what is needed (e.g., “Alice is applying for X role and listed you as a reference. Please click the link to answer a few questions.”) and assures confidentiality of their answers.</li>
+                    <li>The email is branded (company logo or name visible, and “Powered by RefCheck” subtly). The sender address is a trusted domain and not a random string (to avoid looking like spam).</li>
+                    <li>The email contains a prominent link or button which leads to the secure questionnaire. If possible, it also mentions approximately how long it will take (~5 minutes).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a reference provider, I can access the feedback form without any login or hassle</strong>, <strong>so that</strong> I’m not discouraged from completing it.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>Clicking the link in the email opens the RefCheck reference form immediately in a browser. There is no account creation or password needed; the secure token in the URL authenticates me.</li>
+                    <li>The page greets me by my name (“Hi Bob, thanks for helping with a reference for Alice.”) and reiterates the purpose. It also shows the company and candidate name clearly, so I feel confident about what I’m doing.</li>
+                    <li>If the link has already been used (survey submitted), it should inform me that I’ve already submitted feedback (to prevent duplicate entries or confusion).</li>
+                    <li>The form is mobile-friendly – if I open it on my phone, fields and buttons are easy to use and don’t require horizontal scrolling.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a reference provider, I am guided through a conversational Q&amp;A form</strong>, <strong>so that</strong> providing feedback feels like a quick, friendly chat rather than a tedious survey.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The interface presents one question at a time, in a chat bubble or similar format, with an obvious way to answer (text box for open-ended, multiple-choice buttons for yes/no or rating scale for numerical questions).</li>
+                    <li>After I submit an answer, I immediately see it recorded (e.g., my answer appears as a chat bubble from “me”) and the next question appears. There’s minimal lag; any loading (like an AI follow-up) is indicated by a “typing…” placeholder for a second or two.</li>
+                    <li>If I give a very short answer to an open-ended question (like just a few words), the system prompts me politely, “Could you share a bit more detail?” This prompt is optional to follow – I can ignore it and proceed, but it encourages richer feedback.</li>
+                    <li>A progress indicator or step count (e.g., “Question 3 of 5”) is visible, so I know how many more questions remain.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a reference provider, I can skip a question or save and resume if needed</strong> (though the process is short), <strong>so that</strong> I’m not forced to answer something I’m uncomfortable with or if I’m interrupted.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>For each question, there is a “Skip” option visible. If I click skip, the form records a null answer (and possibly asks me to confirm skipping if it’s not the last question, to avoid accidental skips).</li>
+                    <li>If a question is skipped, the app might ask for a reason (optional) or simply note “(Reference chose to skip this question)” for the recruiter’s report.</li>
+                    <li>If I close the form midway, and later click the same email link, the form remembers my progress and I continue from where I left off (using the same secure token). This requires saving partial answers on our end.</li>
+                    <li>When resuming, I’m not asked the same questions again (unless my prior answers didn’t save due to, say, a network issue – in which case a graceful message might ask me to re-answer that one).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a reference provider, I review and submit my feedback at the end</strong>, <strong>so that</strong> I have a chance to correct anything before it’s final.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>After the last question, I see a summary of all my answers on one page or in the chat scroll. I have the ability to edit any answer (for instance, an “Edit” button next to each response that jumps me back to that question or opens a text box to change it).</li>
+                    <li>Once satisfied, I click a final “Submit” button. If I try to leave before clicking Submit (with all questions answered or skipped), the system warns “Your feedback isn’t submitted yet. Are you sure you want to exit?” to prevent accidental abandonment.</li>
+                    <li>Upon submission, I see a thank-you confirmation message. It might say “Thank you for your time! Your feedback has been submitted.” and possibly reassure “The hiring team will use this information confidentially.”</li>
+                    <li>(Optional) A very short satisfaction survey appears (1-5 star experience rating, and/or a comment box). This is clearly optional. If I choose to fill it, great, if not, I can simply close the page. Submitting this does not affect the reference feedback submission which is already done.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+        <!-- Analysis & Review -->
+        <section id="analysis-review" class="section">
+          <div class="section-header">
+            <div class="icon">AR</div>
+            <div>
+              <h1 class="section-title">Analysis &amp; Review</h1>
+              <p class="section-subtitle">AI processing and recruiter consumption of results</p>
+            </div>
+          </div>
+          <p><em>Feature scope:</em> These stories cover what happens once references have submitted their feedback: the AI analysis of the textual answers, generation of summary reports, and how the recruiter accesses and uses that information. It ensures that the insights are delivered accurately and highlight what’s important, assisting the recruiter in making decisions.</p>
+          <ul>
+            <li><strong>As a recruiter, I am notified when a reference check is complete with all responses</strong>, <strong>so that</strong> I can review the feedback promptly.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>Once all invited references have submitted their feedback (or the required minimum number), I receive an email notification saying “Reference Check Complete for [Candidate Name]”. The email contains a link to view the report and perhaps a quick summary if safe to include.</li>
+                    <li>If I’m logged into the dashboard, I also see a real-time update: the status for that candidate changes from “In Progress” to “Completed” (perhaps highlighted in green), and a icon or badge indicates new results available.</li>
+                    <li>If some references responded but not all, I can still click into the interim report which will show who is pending. I’m notiﬁed in the UI that it’s waiting on others. A “Resend invite” or “Add another reference” action is available if needed (outside scope of pure notification, but part of review flow).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can view a consolidated report of all reference feedback with key insights highlighted</strong>, <strong>so that</strong> I get an overview of the candidate’s strengths and weaknesses at a glance.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The report begins with an AI-generated summary that accurately reflects the tone and content of the references. (E.g., “Both references praised X. One mentioned Y as an area to watch.”) The language is professional and clear, and ideally concise (no more than a few paragraphs or bullet points).</li>
+                    <li>The report lists each question asked and groups the answers from each reference under that question. For example, Q1 with Reference A’s answer and Reference B’s answer below it. This makes it easy to compare responses side by side.</li>
+                    <li>Any negative or concerning comments in answers are automatically highlighted (yellow for moderate concern, red for serious). For instance, if a reference wrote “would hesitate to rehire,” that phrase is marked in red. If they wrote “no major issues, however sometimes tardy,” the tardiness remark might be highlighted in yellow. The highlights include a footnote or tooltip explaining them (like “flagged by AI for negative sentiment”).</li>
+                    <li>The overall sentiment or a simple rating per reference is shown (perhaps an icon or score). For example, a smiling icon next to Reference A (who was very positive) and a neutral icon next to Reference B (who was more mixed), helping me quickly gauge each reference’s stance without reading every word first.</li>
+                    <li>I can download the report as a PDF, and the PDF retains the formatting and highlights, including company branding if applicable.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I want the AI analysis to be accurate and adjustable</strong>, <strong>so that</strong> I trust the insights and can correct them if needed.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The AI summary should not invent facts not present in the feedback. (Test: if references didn’t mention a trait, the summary shouldn’t introduce it.) It should use wording that a human recruiter would use. We’ll have an internal validation step (perhaps the first few uses ask the recruiter “Is this summary accurate?” with a thumbs up/down input to gather feedback).</li>
+                    <li>If I mark a summary as inaccurate or notice a misflagged comment, I have a way to give that feedback (e.g., clicking a thumbs-down triggers a text box “What was wrong?”). This is logged for future improvements, but in the immediate term the system might remove a flag or adjust the summary if possible. (v1 might not dynamically change it, but at least logs the input.)</li>
+                    <li>The system errs on the side of caution: it does not flag things that are only subtly negative as major issues. For example, if a reference answer is mostly positive with one minor critique, the summary reflects that nuance (“mostly positive with a minor critique about...”) and perhaps no highlight if it’s truly minor. Only clear negative phrases or themes are highlighted/flagged.</li>
+                    <li>The AI module respects data privacy: it does not leak content from other candidates or irrelevant info. (This is more an internal criteria: ensure prompts and API use only the relevant text.)</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can identify and follow up on any red flags easily</strong>, <strong>so that</strong> I can address concerns with the candidate or references before hiring.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>If any reference answer triggered a serious concern (like mention of misconduct, poor performance, or a clear “would not rehire”), the system explicitly calls that out in the report. Possibly a special section “⚠ Red Flags” that lists the issues or at least arrows pointing to the highlighted text in answers.</li>
+                    <li>The report or UI may offer suggested follow-up questions for these flags. For example, if punctuality was an issue, a note might say “Consider asking the candidate about their time management and how they’ve improved it in subsequent roles.”</li>
+                    <li>I can add a comment or note on the report for internal record (e.g., “Discussed with candidate on 2025-08-04, they provided context XYZ”). This note gets saved with the report and possibly included in the PDF export if I choose.</li>
+                    <li>(Optional, P1/2) If multiple references gave notably different feedback (one glowing, one very lukewarm), the system highlights that discrepancy – e.g., a line in summary like “References provided mixed feedback: one was strongly positive, another had reservations about...”. This ensures I don’t miss inconsistency between responses.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a hiring manager (viewer), I can read the reference report shared with me without editing it</strong>, <strong>so that</strong> I’m informed on the candidate’s background while maintaining data integrity.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>When a recruiter shares a completed report (via adding me as a Viewer or sending a secure link), I can open it and see exactly what the recruiter sees (summary, answers, flags) but I have no option to edit or add notes. The UI clearly is read-only for me.</li>
+                    <li>I do not see the reference providers’ contact info (if the recruiter opted to anonymize it for sharing). For instance, it might label them “Reference 1 – Former Manager” instead of “Bob Manager, bob@example.com” to preserve confidentiality when sharing beyond HR.</li>
+                    <li>If I have questions or comments, I rely on our internal process (e.g., I might call the recruiter or add a note if the system allows input from viewers that’s separate). But by default, the viewer role is just consumption. The system might show a watermark or note “Internal Use Only” to remind that this info is sensitive.</li>
+                    <li>The act of sharing is tracked (audit log: e.g., “Report viewed by John HiringManager on Aug 5”). This is not visible on the frontend to me as viewer, but it’s an acceptance criterion on the backend for compliance.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+        <!-- Tracking & Management -->
+        <section id="tracking-management" class="section">
+          <div class="section-header">
+            <div class="icon">TM</div>
+            <div>
+              <h1 class="section-title">Tracking &amp; Management</h1>
+              <p class="section-subtitle">Dashboard, status, and ongoing management of checks</p>
+            </div>
+          </div>
+          <p><em>Feature scope:</em> These stories are about the recruiter’s ability to track multiple reference checks, see statuses at a glance, and manage ongoing checks (like sending reminders or handling incomplete responses). It ensures the tool provides visibility and control throughout the process, not just at the end.</p>
+          <ul>
+            <li><strong>As a recruiter, I can see all my ongoing and completed reference checks in a dashboard</strong>, <strong>so that</strong> I have a single view of where each candidate stands in the process.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>The dashboard lists each reference check (likely by candidate name and role) with a status indicator (e.g., “2/3 references completed” or “Completed” or “Waiting on 1 response”). It’s sorted by most recent or those needing attention (e.g., incomplete ones at top).</li>
+                    <li>Each entry shows key info: candidate name, position, date initiated, and perhaps a visual progress (like a mini progress bar or fraction as text). If an invite bounced or was declined, that could reflect (e.g., an exclamation icon) to draw my attention.</li>
+                    <li>I can filter or search this list (for example, search by candidate name or filter to “Completed last 30 days” vs “In Progress”). In v1, even a simple text search is fine for finding a candidate quickly.</li>
+                    <li>The design is responsive: on a wide screen, it may show multiple columns (Name, Role, Status, Date); on mobile, it might collapse to a card per candidate for scrolling.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can click into a specific reference check to view more details or take actions</strong>, <strong>so that</strong> I can manage each case individually.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>Clicking a candidate entry opens a detailed view (or drawer/modal) showing that candidate’s reference check progress: list of references (with name, email, relation, status each). For each reference, I see whether they’ve opened the invite (if we track email opens) and whether they’ve submitted feedback.</li>
+                    <li>If a reference is pending and, say, 3 days have passed, I see an option to “Resend Reminder” next to that reference. Clicking it triggers an immediate reminder email and the UI confirms (“Reminder sent to Carol on Aug 5”).</li>
+                    <li>I can also edit a reference’s email if I realize there was a typo (e.g., change .con to .com). Editing it triggers sending the invite to the new address (and possibly voiding the old link). This action is logged and only allowed if that reference hasn’t responded yet.</li>
+                    <li>If a reference declines or can’t be reached, I have the option to add a new reference to replace them. (P1 feature: “Add another reference” which would send a fresh invite to a new contact while marking the old one as canceled.)</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I receive alerts if a reference check is stalled or an email bounces</strong>, <strong>so that</strong> I can proactively intervene.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>If 3 days pass and a reference hasn’t clicked their link, the system generates an alert. This could be an email (“Reminder: 1 of 3 references for Alice hasn’t responded yet. Consider reaching out personally.”) and/or a highlight on the dashboard (the candidate entry might turn orange or have a warning icon).</li>
+                    <li>If an invitation email bounces (invalid address) or is undeliverable, I am notified within the day. The candidate’s detail view will mark that reference as “Email failed – invalid address”. I can then correct the email and resend.</li>
+                    <li>If after X days (e.g., 7 days) not all references are in, I receive a summary email listing those still pending across all my checks. (This might be a digest, perhaps P1, to catch anything that slipped through.)</li>
+                    <li>All such alerts can be toggled in settings if needed (but default is on to help busy recruiters).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can mark a reference check as complete or cancel it manually if needed</strong>, <strong>so that</strong> I can stop the process when it’s no longer needed.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>If I decide to hire or disqualify a candidate before all references come in, I can mark that reference check as closed. This might appear as a “Cancel Reference Check” or “Mark as Complete” button in the detail view.</li>
+                    <li>Upon canceling, any pending reference links are deactivated (if they click, they might see “This reference request is no longer active.”). The dashboard marks it accordingly (maybe a status “Canceled” or simply removes it from active list).</li>
+                    <li>Canceled checks are not counted in metrics like completion rate (or counted separately) to avoid skewing data.</li>
+                    <li>I can still view partial reports for canceled checks (if some references had responded) in an archive section, but it’s clearly labeled as incomplete/canceled. This allows retrieval if needed, but mainly it’s for record-keeping.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+        <!-- Collaboration & Permissions -->
+        <section id="collaboration-permissions" class="section">
+          <div class="section-header">
+            <div class="icon">CP</div>
+            <div>
+              <h1 class="section-title">Collaboration &amp; Permissions</h1>
+              <p class="section-subtitle">Multi-user support and access control</p>
+            </div>
+          </div>
+          <p><em>Feature scope:</em> These stories deal with multiple users within the hiring organization using RefCheck. It outlines what an Admin can do versus a regular recruiter, and how a recruiter can share reference check results with others in a secure way. While some of these are P1 enhancements, it’s important to design with them in mind for future growth (especially for teams).</p>
+          <ul>
+            <li><strong>As an admin user, I can invite colleagues to use RefCheck under our company account</strong>, <strong>so that</strong> our hiring team can collaborate and share workload.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>There’s a “Users” or “Team” management section where I (admin) can add a new user by entering their email and assigning a role (Recruiter or Viewer).</li>
+                    <li>Inviting sends that person an email with a link to set up their password and join the account. Until they accept, their status might show as “Pending” in the user list.</li>
+                    <li>Admin can remove a user or change their role. Removing immediately revokes access (that user’s login can no longer access our company data). Changing role updates what they can see and do (e.g., demoting an admin to viewer or vice versa).</li>
+                    <li>For v1, we assume one admin (the account creator) and others as recruiters or viewers. All recruiters can see all reference checks for that company (no per-recruiter silo yet), unless decided otherwise. This is communicated to users to avoid confusion.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I can share a reference report with the hiring manager via a secure link or add them as a viewer</strong>, <strong>so that</strong> they can review the feedback themselves.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>On a completed report page, I have an action to “Share Report”. Options include: generate shareable link or invite user.
+                      <ul>
+                        <li><em>Shareable Link:</em> Clicking generates a unique URL that I can copy. Anyone with this URL can view the report (no login) but it’s obfuscated (long random token). I can set an expiry (default 7 days) for security. I can also disable the link if needed (which then invalidates it).</li>
+                        <li><em>Invite Viewer:</em> I enter an email, the system sends them an invite to create a viewer account limited to this report or all reports? (Likely simpler: add as full viewer user on account, then use RBAC to limit if needed.) For v1, maybe skip granular per-report permission; assume shareable link for quick sharing, viewer accounts for ongoing access.</li>
+                      </ul>
+                    </li>
+                    <li>The shared report (via link or viewer login) does not allow the viewer to access other candidate reports unless they’ve been given those too. If using link, it’s only that report. If using a viewer account (with role-based), maybe viewers can see all completed reports by default or ones an admin assigns. Clarity needed – likely: make them a viewer user = can see all, which might be acceptable for a small team scenario.</li>
+                    <li>Audit logging: It’s recorded when a share link is created and by whom, and if it’s used to access the report (timestamp, maybe IP/browser for security). Similarly, adding a viewer user is logged. These logs are available to admins upon request (not necessarily in UI v1, but stored for compliance).</li>
+                    <li>(Security) The share link should not expose reference identities if not desired. Perhaps by default it hides reference names and contact, labeling them generically (given the viewer may sometimes be the hiring manager who might know the candidate personally or even the candidate if share accidentally - though we wouldn’t share with candidate in this flow, but just in case of leak, minimize identifiable info).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a basic user (recruiter), I cannot alter account-wide settings or view others’ private info (like billing)</strong>, <strong>so that</strong> sensitive settings remain controlled by admin.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>In the UI, non-admin recruiters do not see the “Team Management” or “Billing” sections. They also cannot delete data outside their scope.</li>
+                    <li>If a non-admin tries to access an admin endpoint (e.g., via direct URL), the server returns 403 Forbidden. The UI may show a polite “You do not have access to this area.”</li>
+                    <li>Regular recruiters can create and manage reference checks (that’s their role’s scope). If in future we implement a setting where recruiters only see their own candidates, that would be handled by linking candidates to the creator – for v1, all recruiters share a pool as mentioned, so this criterion is more about not letting them manage high-level settings.</li>
+                    <li>Viewer users basically have read-only access. They cannot create or edit reference checks. The UI hides all buttons for sending or editing from them. If a viewer user somehow invokes a change action, it’s rejected by the backend as well. Essentially, viewer sees dashboard and reports but with no actionable controls.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As an admin, I can configure global settings like default reminder schedule or data retention preferences</strong> (<em>(P1/2 for some settings)</em>), <strong>so that</strong> the system aligns with our company’s policies.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>In a “Settings” page, options might include:
+                      <ul>
+                        <li>Reminder cadence: e.g., send first reminder after 2 days (toggle on/off or set number of days).</li>
+                        <li>Auto-close: e.g., mark checks as done after X days regardless of responses (maybe not v1, but a policy some might want).</li>
+                        <li>Data retention: e.g., automatically archive/delete reference data after N years (for compliance). For v1, likely just stating data will be kept 2 years by default, but giving an option if needed for strict companies.</li>
+                      </ul>
+                    </li>
+                    <li>These settings changes affect future behavior (e.g., if I change reminder interval, the next unsent reminders follow the new schedule; existing waiting ones might adjust accordingly).</li>
+                    <li>Only admins can change settings; recruiters can view them but not edit (or we hide entirely from non-admin to avoid confusion).</li>
+                    <li>Changes are confirmed (e.g., “Settings saved” message) and logged (audit: “Reminder interval changed from 2 to 3 days by Admin Alice on Aug 6”).</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+        <!-- Integration & Automation -->
+        <section id="integration-automation" class="section">
+          <div class="section-header">
+            <div class="icon">IA</div>
+            <div>
+              <h1 class="section-title">Integration &amp; Automation</h1>
+              <p class="section-subtitle">Connecting with external systems and automating workflows</p>
+            </div>
+          </div>
+          <p><em>Feature scope:</em> These stories deal with how RefCheck interacts with other tools and automates certain tasks. This includes integration with Applicant Tracking Systems (ATS) like Greenhouse or Lever (most likely via Zapier or webhooks in v1), as well as automated notifications or scheduled reports that go out to stakeholders.</p>
+          <ul>
+            <li><strong>As a recruiter, I want RefCheck to integrate with our ATS,</strong> <strong>so that</strong> reference checks can start automatically and results can be seen in the candidate’s ATS profile.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>If using Zapier or similar: we have a documented template such that when a candidate is moved to a “Reference Check” stage in the ATS, Zapier calls the RefCheck API to create a reference check (populating candidate name, role, and ideally references if those were collected). This should trigger just as if I manually created it, and I get notified in RefCheck.</li>
+                    <li>Alternatively or additionally, we support an incoming webhook from ATS: e.g., ATS sends candidate data to <code>/api/v1/integrations/ats</code>, which our system processes. For acceptance, at least one example integration (like with Greenhouse or Lever via Zapier) is tested and works in v1.</li>
+                    <li>After completion, RefCheck can send a webhook or use Zapier to add a note to the ATS: e.g., “Reference check completed on [date]. Summary: ...” and perhaps attach the PDF or link. Criteria: The note appears in the ATS within a short time of completion (say, within 5 minutes) and contains enough info for someone glancing at ATS to know references are done and where to find details.</li>
+                    <li>These integration actions are configurable (some users might not want auto-start or auto-post to ATS). In v1, it might require setup via Zapier or an admin enabling webhooks – which is acceptable as a manual configuration step documented in our guide.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a hiring team member, I can receive a daily or weekly summary of reference check activity</strong>, <strong>so that</strong> I’m kept in the loop without constantly checking the app.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>If I opt in (or by default), the system sends a daily digest email of reference check statuses. For example: “Today’s RefCheck Summary: 2 new checks initiated (Alice J., Bob K.), 3 completed (Carol L., Dan M., Erin N.), 1 pending (Frank O. waiting on 1 reference).”</li>
+                    <li>Likewise, a weekly summary could include stats like “This week you initiated 5 checks, average turnaround time 1.2 days.” That’s more P2, but the daily/weekly option can be combined and formatted nicely.</li>
+                    <li>The email only goes to users who want it (toggle in settings or unsubscribe link in the email). It aggregates across the company or just the user’s own candidates depending on scenario – given v1 likely has all recruiters see all, one digest for all might be fine for small teams. If team is larger, might need personalized, but we can keep it simple for now.</li>
+                    <li>No sensitive reference content is in the summary – it’s high-level info. Detailed content stays in the app links.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a system owner, I ensure that RefCheck’s API and webhooks support future integrations easily</strong>, <strong>so that</strong> we can integrate with internal tools or other services as needed.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>We have API endpoints (authenticated) for the core actions: creating a reference check, retrieving a report, etc., as documented in the API guide. They work as expected (tested with sample calls).</li>
+                    <li>There is a webhook mechanism that can send out events: at minimum “reference_check.completed”. It can be configured with a URL in settings or per request via callback_url. This webhook sends the necessary data (reference_check_id, status, summary snippet, etc.) for an external system to consume. We test it with a requestbin or similar to ensure it’s firing and properly formatted.</li>
+                    <li>The system can handle the case where an external system calls our API to create a reference check for a candidate that’s already in our database (perhaps from a previous check). Ideally, it should create a new check instance cleanly, not merge with old data except reusing template or user info appropriately.</li>
+                    <li>The API and webhook transactions are secure (using SSL, requiring auth for API, and providing a signature or secret for webhooks as possible). This might not be directly user-facing but is part of acceptance for integration-readiness.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>As a recruiter, I want certain actions to be automated,</strong> <strong>so that</strong> I can focus on decisions rather than administration.
+              <ul>
+                <li class="muted">Acceptance Criteria:
+                  <ul>
+                    <li>(Many automation points already covered: auto-reminders, auto-notifications, etc. This story ensures we consider any other repetitive tasks.)
+                      <ul>
+                        <li>For instance, auto-forwarding the final report to a particular email distribution (maybe HR team alias) once complete – could be a setting the admin turns on. If on, then acceptance is that an email with PDF goes to the specified address(es) upon completion.</li>
+                        <li>Another automation: if a candidate’s references complete and everything is positive (no flags), optionally trigger moving them to next stage via integration. This might be later scope, but we note it as a possibility.</li>
+                      </ul>
+                    </li>
+                    <li>No automation should happen without either a reasonable default or explicit configuration. We prefer opt-in for sending data outward. E.g., by default we might not email PDFs externally, but we allow it if set up.</li>
+                    <li>Automations are logged and transparent – e.g., if a report was auto-emailed to someone, that appears in an activity log for that reference check (“Report auto-sent to hiring@abc.com”). This is critical for compliance and debugging.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#story-overview">Overview</a></li>
+        <li class="nav-item"><a class="nav-link" href="#setup-initiation">Setup &amp; Initiation</a></li>
+        <li class="nav-item"><a class="nav-link" href="#reference-feedback">Reference Feedback Collection</a></li>
+        <li class="nav-item"><a class="nav-link" href="#analysis-review">Analysis &amp; Review</a></li>
+        <li class="nav-item"><a class="nav-link" href="#tracking-management">Tracking &amp; Management</a></li>
+        <li class="nav-item"><a class="nav-link" href="#collaboration-permissions">Collaboration &amp; Permissions</a></li>
+        <li class="nav-item"><a class="nav-link" href="#integration-automation">Integration &amp; Automation</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>

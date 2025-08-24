@@ -1,0 +1,639 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta name="x-poe-datastore-behavior" content="local_only">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    block-all-mixed-content
+  ">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RefCheck — Testing &amp; QA Plan (v1.0)</title>
+  <meta name="description" content="RefCheck Testing &amp; QA Strategy: test plans, quality assurance processes, and acceptance criteria to deliver a reliable reference checking platform.">
+  <style>
+    :root {
+      --primary-color: #0B63CE;
+      --secondary-color: #00A36C;
+      --accent-color: #7C3AED;
+      --text-color: #202223;
+      --text-muted: #4B5563;
+      --bg-color: #F6F6F7;
+      --bg-surface: #FFFFFF;
+      --border-color: #E5E7EB;
+      --success: #0F766E;
+      --warning: #B45309;
+      --danger: #B91C1C;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius: 12px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --content-max: 1080px;
+      --sidebar-width: 280px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-color);
+      background: var(--bg-color);
+      line-height: 1.6;
+      font-size: clamp(14px, 1vw + 10px, 16px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    button:focus-visible { outline-offset: 0; }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: var(--shadow-lg);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 20px);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(12px, 2.5vw, 28px);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: clamp(12px, 2.5vw, 24px);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .header h1 {
+      font-size: clamp(1.1rem, 2.2vw + .6rem, 1.6rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .8rem; }
+    .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip { background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; font-size: .8rem; }
+    .menu-btn-wrapper { position: sticky; top: 10px; z-index: 100; display: none; justify-content: flex-end; margin: -40px -10px 10px 0; }
+    .menu-btn { background: #fff; color: #111; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; box-shadow: var(--shadow-lg); transition: transform 0.2s ease; }
+    .menu-btn:hover { transform: scale(1.05); }
+    .menu-btn:active { transform: scale(0.98); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.5vw, 28px); }
+    .sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2vw, 18px);
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: sticky;
+      top: 20px;
+    }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    .nav-title { font-weight: 700; margin-bottom: var(--space-3); }
+    .nav-list { list-style: none; }
+    .nav-item { margin-bottom: 4px; }
+    .nav-link {
+      display: block;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: .2s ease all;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover { background: #EEF4FF; color: #0B4BC0; transform: translateX(2px); }
+    .nav-link.active { background: var(--primary-color); color: #fff; }
+    .main {
+      background: var(--bg-surface);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      max-width: 100%;
+    }
+    .section {
+      padding-bottom: clamp(14px, 2.6vw, 24px);
+      margin-bottom: clamp(14px, 2.6vw, 24px);
+      border-bottom: 1px solid var(--border-color);
+      scroll-margin-top: 80px;
+    }
+    .section:last-child { border-bottom: none; margin-bottom: 0; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(10px, 2vw, 16px); }
+    .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      box-shadow: var(--shadow);
+      font-size: 0.9rem;
+    }
+    .section-title { font-size: clamp(1.05rem, 1.2vw + .6rem, 1.4rem); }
+    .section-subtitle { color: var(--text-muted); margin-top: 2px; font-size: .95rem; }
+    h2 { font-size: clamp(1.05rem, 1.2vw + .5rem, 1.25rem); margin: 12px 0 10px; }
+    h3 { font-size: clamp(1rem, 1.1vw + .45rem, 1.15rem); margin: 10px 0 8px; }
+    h4 { font-size: clamp(.95rem, .9vw + .4rem, 1.05rem); margin: 8px 0 6px; }
+    p { margin-bottom: 10px; color: var(--text-muted); }
+    .grid { display: grid; gap: clamp(12px, 2vw, 18px); }
+    .grid.auto { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: clamp(10px, 2vw, 14px);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kpi { font-weight: 700; color: #0B3B2F; }
+    .card ul, .card ol { margin: 0; padding-left: 0; list-style: none; }
+    .card li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .card li:last-child { margin-bottom: 0; }
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      line-height: 16px;
+      font-size: 14px;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      pointer-events: none;
+    }
+    .card.positive-list li::before { content: "✓"; color: var(--success); }
+    .card.warning-list li::before { content: "⚠"; color: var(--warning); }
+    .card.danger-list li::before { content: "⛔"; color: var(--danger); }
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    .alert.info { background: #E8F1FF; border-left: 4px solid #1D4ED8; color: #0B3C8A; }
+    .alert.success { background: #E6FFFA; border-left: 4px solid #0F766E; color: #0B3B2F; }
+    .alert.warning { background: #FFF6E5; border-left: 4px solid #B45309; color: #7C3A0A; }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-size: .85rem;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: var(--shadow); }
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 700px;
+    }
+    .table th, .table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      font-size: .95rem;
+    }
+    .table th { background: #F2F4F7; font-weight: 700; color: #111827; }
+    .table tr:last-child td { border-bottom: none; }
+    .table tr:hover { background: #FAFAFB; }
+    .small { font-size: .85rem; color: var(--text-muted); }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .p0 { background: #FEE2E2; color: #7F1D1D; }
+    .p1 { background: #FEF3C7; color: #7C2D12; }
+    .p2 { background: #DBEAFE; color: #1E3A8A; }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0A0F1A;
+      color: #A1AEC6;
+      padding: 8px 12px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid #111827;
+      border-bottom: none;
+    }
+    .code-lang { background: var(--accent-color); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: .75rem; }
+    pre {
+      background: #0B1220;
+      color: #E2E8F0;
+      border-radius: 0 0 10px 10px;
+      padding: 12px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: .9rem;
+      border: 1px solid #111827;
+      border-top: none;
+      margin: 0 0 10px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .persona {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--text-muted); font-size: .92rem; }
+    @media (min-width: 1160px) {
+      .layout { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); }
+      .menu-btn-wrapper { display: none !important; }
+    }
+    @media (max-width: 1159.98px) {
+      .menu-btn-wrapper { display: flex; }
+      .sidebar-drawer {
+        position: fixed;
+        inset: 0 0 0 auto;
+        width: min(85vw, 320px);
+        background: var(--bg-surface);
+        border-left: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateX(100%);
+        transition: transform .25s ease;
+        z-index: 1000;
+        padding: 16px;
+        overflow-y: auto;
+      }
+      .sidebar-drawer.open { transform: translateX(0); }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 999;
+      }
+      .backdrop.show { opacity: 1; pointer-events: auto; }
+      .sidebar { box-shadow: none; border: none; padding: 0; position: static; max-height: calc(100vh - 32px); }
+      .layout .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    @media print {
+      .sidebar, .menu-btn-wrapper, .backdrop, .sidebar-drawer, .skip-link { display: none !important; }
+      .main { box-shadow: none; border: none; padding: 0; }
+      .layout { display: block; }
+      .section { page-break-inside: avoid; }
+      pre { white-space: pre-wrap; }
+      .header { background: none; color: var(--text-color); border: 2px solid var(--text-color); }
+    }
+  </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="container">
+    <header class="header">
+      <h1>RefCheck — Testing &amp; QA Plan <span class="badge">v1.0</span></h1>
+      <div class="header-meta">
+        <span class="chip">Test Strategy</span>
+        <span class="chip">Quality Assurance</span>
+        <span class="chip">Acceptance Criteria</span>
+        <span class="chip">Automation</span>
+      </div>
+    </header>
+    <div class="menu-btn-wrapper">
+      <button class="menu-btn" aria-controls="toc-drawer" aria-expanded="false" aria-label="Open navigation menu">
+        <span aria-hidden="true">☰</span> Menu
+      </button>
+    </div>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Table of contents">
+        <div class="nav-title">📑 Table of Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link active" href="#qa-approach">QA Approach &amp; Objectives</a></li>
+          <li class="nav-item"><a class="nav-link" href="#test-types">Test Types &amp; Coverage</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#data-validation">Data Validation Testing</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#integration-testing">Integration &amp; E2E Testing</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#performance-testing">Performance &amp; Load Testing</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#security-testing">Security &amp; Privacy Testing</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#email-testing">Email Deliverability Testing</a></li>
+            <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#uat">User Acceptance Testing (UAT)</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tools-process">Tools, Process &amp; Automation</a></li>
+          <li class="nav-item"><a class="nav-link" href="#def-of-done">Acceptance Criteria &amp; Definition of Done</a></li>
+        </ul>
+      </nav>
+      <main id="main" class="main" tabindex="-1">
+        <!-- QA Approach & Objectives -->
+        <section id="qa-approach" class="section">
+          <div class="section-header">
+            <div class="icon">QA</div>
+            <div>
+              <h1 class="section-title">QA Approach &amp; Objectives</h1>
+              <p class="section-subtitle">Ensuring a high-quality, reliable RefCheck v1.0</p>
+            </div>
+          </div>
+          <p>Our quality assurance strategy for RefCheck v1.0 is centered on catching issues early, validating that all features meet the PRD specifications, and ensuring the system is robust under real-world conditions. The QA approach is tightly integrated with development (following an agile methodology) so that testing is not a final-phase activity but an ongoing effort throughout the project.</p>
+          <p>The **objectives** of our Testing &amp; QA plan are:
+            </p><ul>
+              <li>Verify that every user story and acceptance criterion is met (functionality works as intended for both recruiters and references).</li>
+              <li>Validate data accuracy and consistency, e.g., references’ answers are correctly captured, stored, and displayed without loss or alteration.</li>
+              <li>Ensure integrations (email delivery, AI analysis, ATS webhooks) function reliably in various scenarios (including error handling when external services fail).</li>
+              <li>Assess performance and scalability to confirm the system can handle the expected load (e.g., multiple reference checks happening concurrently) within acceptable response times.</li>
+              <li>Guard against security and privacy issues, given the sensitive nature of reference feedback. This includes making sure only authorized users can access certain data and that personal info is protected.</li>
+              <li>Provide a smooth user experience by catching UI/UX bugs (such as broken layouts on different devices, confusing prompts, etc.) before launch.</li>
+            </ul>
+          <p></p>
+          <p>Our QA process will use a mix of **manual testing** (for exploratory, usability, and UAT) and **automated testing** (for repetitive regression checks and performance simulation). We will maintain a test case repository mapping to each major feature to track coverage. Testing is done on a staging environment that mirrors production settings (with test accounts and data), to closely simulate real use. We also plan a beta period where actual end-users will interact with the system, effectively serving as a user acceptance test in a controlled setting.</p>
+          <p>The following sections outline the different types of tests we'll conduct, the tools and processes involved, and the criteria for considering v1.0 release-ready.</p>
+        </section>
+        <!-- Test Types & Coverage -->
+        <section id="test-types" class="section">
+          <div class="section-header">
+            <div class="icon">TT</div>
+            <div>
+              <h1 class="section-title">Test Types &amp; Coverage</h1>
+              <p class="section-subtitle">Comprehensive testing from unit to user-level</p>
+            </div>
+          </div>
+          <p>We break down our testing efforts into several categories, each targeting different aspects of quality. For each test type, specific scenarios and cases are documented. Below are the main categories of testing for RefCheck:</p>
+          <ul>
+            <li><strong>Data Validation Testing:</strong> Verify that all data captured and output by the system is correct and consistent (see details below).</li>
+            <li><strong>Integration &amp; End-to-End (E2E) Testing:</strong> Test complete user workflows and external integrations as a whole, ensuring all parts work together seamlessly.</li>
+            <li><strong>Performance &amp; Load Testing:</strong> Simulate heavy usage to ensure the system meets performance benchmarks and doesn’t degrade under load.</li>
+            <li><strong>Security &amp; Privacy Testing:</strong> Scan for vulnerabilities and attempt common threats (XSS, unauthorized access) to ensure data is secure and compliance requirements are met.</li>
+            <li><strong>Email Deliverability Testing:</strong> Specifically verify that our invitation and reminder emails reliably reach recipients and appear correctly across email clients.</li>
+            <li><strong>User Acceptance Testing (UAT):</strong> Have actual users (or stakeholders) perform real-world scenarios in a beta environment to gather feedback on functionality and usability.</li>
+          </ul>
+          <p>Each category is elaborated in sub-sections with examples of what we’ll test and how. Many of these tests derive directly from the acceptance criteria in our user stories document and the success metrics in the PRD.</p>
+        </section>
+        <section id="data-validation" class="section">
+          <h2>Data Validation Testing</h2>
+          <p>This covers tests to ensure that data flows through the system accurately and completely from input to output.</p>
+          <ul>
+            <li><strong>Reference Input Accuracy:</strong> After a reference submits their answers, we confirm those answers are stored correctly in the database (no truncation of text, proper encoding of special characters) and that they appear exactly as given in the recruiter’s report. We test edge cases like very long responses, or responses with unusual characters (accents, symbols, emoji) to ensure nothing breaks or is lost.</li>
+            <li><strong>Report Consistency:</strong> The data shown in the summary report (both the AI-generated summary and the list of Q&amp;A) should match the raw input. We create a known dataset (e.g., we fill a reference form with predetermined answers including specific keywords) and then verify the report contains all those elements correctly. Any flagging or highlighting by AI is also checked for correctness (e.g., if we expect a certain phrase to be flagged as a concern, does the system flag it?).</li>
+            <li><strong>Multi-reference Aggregation:</strong> In scenarios with multiple references for a candidate, we verify that all their inputs are present in the combined report and properly labeled. Tests include cases where references might have similar names or answer similarly (to ensure there’s no mix-up or overwriting of data among references).</li>
+            <li><strong>Error Handling for Data Issues:</strong> We simulate what happens if a reference’s form submission is interrupted (e.g., network goes down mid-submit) – the system should either save partial data or prompt them to resume without creating duplicate entries or losing what was answered. Also, if the AI summary fails to generate, the system should still present the raw data without crashing. We validate these fail-safe behaviors.</li>
+          </ul>
+        </section>
+        <section id="integration-testing" class="section">
+          <h2>Integration &amp; E2E Testing</h2>
+          <p>Integration testing verifies that components of RefCheck and external systems work together in real-world use cases. End-to-end (E2E) tests mimic an entire workflow from start to finish.</p>
+          <ul>
+            <li><strong>Full Recruiter-Reference Workflow:</strong> We will run through a scenario starting from a recruiter logging in, creating a reference check, all the way to references submitting feedback and the report being generated. This E2E test, executed manually and via automated scripts (using tools like Cypress or Playwright), ensures that each screen transitions correctly, the right emails are sent, links work, and data flows to the end without manual intervention needed. We consider this pass successful when a recruiter can initiate and receive a complete report without encountering any errors or needing to contact support.</li>
+            <li><strong>Email &amp; Link Integration:</strong> We specifically test that the invitation and reminder emails contain the correct personalized content and a working secure link. Using test email accounts (Gmail, Outlook, mobile clients), we verify that the link opens the reference form and that form recognizes the reference (no login needed, correct candidate context shown). We also validate that if a link is used twice or expired, the reference sees a proper message (and the recruiter dashboard updates accordingly if someone tries to use an already completed link).</li>
+            <li><strong>ATS/Webhook Flow:</strong> For integration with an ATS via Zapier or direct webhook, we simulate an ATS event (like moving a candidate to Reference Check stage) and ensure our system correctly receives that and creates a reference check. Then we simulate the completion and verify that our webhook sends the summary back to the specified endpoint. This test might be partly manual (observing logs or a requestbin) and partly automated by calling our APIs in sequence. Success is defined by zero data mismatches (the candidate info from ATS matches what’s in RefCheck) and timely execution (webhook goes out within a few seconds of completion).</li>
+            <li><strong>Multi-browser, Multi-device E2E:</strong> We run critical path tests (like the reference completing the form) on different browsers and devices to catch integration issues that are environment-specific. For instance, on an iPhone Safari, does the voice-to-text button work as intended? On an older Android, do all inputs respond? These are not separate functionalities but integrated environment tests. We log any discrepancies (like a button not clickable on a certain mobile viewport) as issues to fix in the UI.</li>
+          </ul>
+          <p class="muted">*Integration tests often overlap with user experience, so some issues found here might be UX improvements (e.g., “user wasn’t sure if their feedback submitted successfully”). We’ll note these for refinement but also ensure the underlying functionality is correct.*</p>
+        </section>
+        <section id="performance-testing" class="section">
+          <h2>Performance &amp; Load Testing</h2>
+          <p>To ensure RefCheck performs well under expected (and beyond expected) usage, we conduct performance tests focusing on response times and system stability.</p>
+          <ul>
+            <li><strong>Load Scenarios:</strong> Using a tool such as JMeter or Locust, we simulate multiple recruiters and references using the system simultaneously. For example, we might simulate 50 reference invitations being sent within a 5-minute window, followed by 50 references filling out forms concurrently. We observe system metrics (API response times, CPU/memory usage on the server, database query times). The system should handle this without errors, and key operations (loading dashboard, submitting form) should remain within acceptable response time (e.g., under 2 seconds for form submissions excluding the AI processing time).</li>
+            <li><strong>AI Processing Throughput:</strong> We test what happens if many AI analyses are requested around the same time (since that relies on an external API with rate limits). We batch, say, 10 completed reference sets and trigger summary generation. Our expectation is that our queuing mechanisms handle it (maybe processing a few at a time) and none are dropped. We measure the total time to generate all summaries to ensure it’s within our 10-second P95 target per summary. If the external API becomes a bottleneck, we note how our system recovers (e.g., retries later) and ensure that the recruiter’s experience is graceful (maybe slight delays but no crashes).</li>
+            <li><strong>Front-end Rendering:</strong> We measure page load times for the main app on various network speeds (using browser dev tools to simulate 3G, etc.). The reference form should load quickly even on mobile – ideally within 3 seconds on average mobile network – otherwise references might drop off. If we find heavy assets, we’ll optimize them (e.g., compress images or lazy-load parts of the app). We also test that the chat interface doesn’t lag while typing or transitioning questions, even on lower-end devices – a kind of performance test for the front-end code’s efficiency.</li>
+            <li><strong>Long-running Stability:</strong> As a form of endurance test, we leave the system running with background tasks (like the scheduler sending reminders, etc.) for an extended period and monitor memory usage, open connections, and log files. The goal is to catch any memory leaks or repeated errors. For instance, if our email sending code had an issue that slowly consumed resources every hour, an endurance test would reveal that. We consider it a pass if after 24-48 hours of simulated normal usage, resource utilization remains steady and no crash or forced restart is needed.</li>
+          </ul>
+        </section>
+        <section id="security-testing" class="section">
+          <h2>Security &amp; Privacy Testing</h2>
+          <p>Security testing is critical for protecting sensitive data and maintaining user trust. Our approach includes both automated scanning and manual ethical hacking techniques:</p>
+          <ul>
+            <li><strong>Vulnerability Scan:</strong> We run automated security scanners (such as OWASP ZAP or Burp Suite in passive mode) against our staging application. This checks for common weaknesses like SQL injection (even though we use parameterized queries, we validate none slip through), cross-site scripting (we try injecting script tags in reference inputs to ensure they’re properly escaped in the report), and misconfigured security headers (the CSP we set should get a thumbs-up). We address any high or medium findings immediately.</li>
+            <li><strong>Access Control Testing:</strong> We attempt to break the role permissions. For example, using a recruiter’s token to access an admin-only API endpoint – it should fail. Or using a reference link (token) to attempt to fetch another reference’s data by guessing their token or changing an ID in a URL – that should be prevented (either by unguessable tokens and proper authorization checks). We also test that a viewer (read-only user) truly cannot perform actions like sending invites or editing settings. Each such test ensures no privilege escalation is possible.</li>
+            <li><strong>Data Protection and Privacy:</strong> We verify that sensitive data is not logged or exposed unwittingly. For instance, when references submit feedback, our server logs should not print the content of their answers (to avoid storing that in plain text in log files). We also confirm that when we delete or anonymize data (if a GDPR deletion request were simulated), it actually disappears from our system (perhaps a manual check on the database backups to ensure compliance procedure). Additionally, we test our encryption at rest by verifying that if we directly inspect the database, any highly sensitive fields (if we decided to encrypt something like reference emails or candidate personally identifiable info) are not stored in plaintext.</li>
+            <li><strong>DDoS and Abuse Scenarios:</strong> While full-scale DDoS testing is not feasible, we do test how the system reacts to rapid-fire requests (this ties into performance too). For instance, hitting the same API endpoint 100 times in a second – does the app start throwing errors or queue them gracefully? And we have rate-limiting in place for certain actions (like reference form submissions or login attempts). We’ll verify those (e.g., after 5 failed login attempts, is the account temporarily locked or slowed down?). These measures prevent simple abuse and ensure security as well as stability.</li>
+          </ul>
+          <p>Any critical security issue must be resolved before go-live, even if it means adjusting the timeline. We will also arrange for a third-party security assessment when possible, but in this v1 timeframe, the focus is on known best practices and internal testing.</p>
+        </section>
+        <section id="email-testing" class="section">
+          <h2>Email Deliverability Testing</h2>
+          <p>Because our product heavily relies on email communications (invitations and reminders), we allocate special attention to testing emails:</p>
+          <ul>
+            <li><strong>Content &amp; Format Check:</strong> We send test invitations to various email providers (Gmail, Outlook.com, Yahoo, and an enterprise Outlook if available). We verify that the email is not flagged as spam (we’ll adjust subject lines or content if we find spammy triggers). We confirm that the formatting holds up – e.g., the company logo appears, the button/link is clickable and visible, and the text adapts to dark mode (many email clients offer dark mode; we ensure text is still readable).</li>
+            <li><strong>Link Functionality:</strong> We ensure that the unique reference link in the email works on all devices: tapping it on mobile should open the browser to the form (if an app like Gmail might sandbox it, we double-check that flow). We also test that if the link were somehow corrupted (e.g., line breaks in older email clients) or partially copied, the system handles it gracefully (likely by showing an error “invalid link” rather than a crash). We do this by manually altering the token and seeing that the front-end catches it.</li>
+            <li><strong>Reminder Automation:</strong> Using a staging scenario, we let a reference invite go unanswered past our reminder interval and verify that the system indeed sends a follow-up email. We check that the follow-up email is properly worded (it should differ from the first email enough to not be flagged as duplicate spam, maybe including a polite “Friendly reminder” text). We also ensure that only the intended references get these and that once a reference submits feedback, no further reminders go out.</li>
+            <li><strong>Bounce and Failure Handling:</strong> We test with a known bad email address (e.g., bounce@testmail.com or similar that we know will bounce). The system should log the bounce event via SendGrid’s callback and mark that reference appropriately (and alert the recruiter). In our test, we will monitor the logs or webhook to confirm we register the bounce. Similarly, we might simulate a temporary send failure (one way is to configure a wrong SMTP for a test run) to see if our system retries and logs the issue. While we won't break the real email service for production, in staging we can intercept the send to simulate outage and ensure our retry logic would kick in.</li>
+          </ul>
+          <p>By treating email as a first-class component in testing, we aim to avoid scenarios where hiring teams think references were contacted when in fact emails didn’t get delivered. Every email triggered by the system is accounted for and verified for correctness.</p>
+        </section>
+        <section id="uat" class="section">
+          <h2>User Acceptance Testing (UAT)</h2>
+          <p>After internal testing cycles, we proceed to a User Acceptance Testing phase with a limited set of end users (e.g., a few recruiters or HR partners who agreed to pilot the tool). The goals of UAT are to validate that the product meets the users’ needs in practice and to uncover any usability issues or minor bugs that internal testing might miss.</p>
+          <ul>
+            <li><strong>Beta Tester Setup:</strong> We will onboard a small group of beta users to the platform in a controlled manner. They will use the system to run actual reference checks for one or two candidates (possibly parallel to their existing process to compare). We ensure they understand this is a testing phase and encourage them to report any confusion or mismatches between their expectations and what the software does.</li>
+            <li><strong>Real-world Scenarios:</strong> These users will perform unscripted tasks: for example, one recruiter might try to integrate with their ATS via Zapier, another might heavily customize a question template, etc. We observe (or have them record) these sessions to see where improvements can be made. We consider the UAT successful if these users can accomplish core tasks without our team’s intervention or guidance beyond normal onboarding materials.</li>
+            <li><strong>Feedback Collection:</strong> We provide a channel (like a shared document or survey) for UAT participants to give feedback. We categorize feedback into bugs (something didn’t work as intended) versus suggestions (it works but could be better). For v1.0 launch, we aim to fix all critical bugs found in UAT and as many high-importance UX issues as possible. Less critical suggestions might go into the post-MVP roadmap.</li>
+            <li><strong>Sign-off Criteria:</strong> We define that UAT is passed when key stakeholders (e.g., our PM and the beta users themselves) are confident that the product can be used in real hiring processes reliably. Formally, this could mean: all high-severity issues from UAT are resolved or have workarounds, and the beta users express willingness to continue using the product. Essentially, if beta users say “I would use this live” and our internal QA sign-off checklist is complete, we proceed to general release.</li>
+          </ul>
+          <p>UAT is the bridge between testing in theory and testing in reality. It provides the final validation that RefCheck is ready for the market, and it’s an invaluable step for catching anything we might have overlooked in isolated testing conditions.</p>
+        </section>
+        <!-- Tools, Process & Automation -->
+        <section id="tools-process" class="section">
+          <div class="section-header">
+            <div class="icon">TP</div>
+            <div>
+              <h1 class="section-title">Tools, Process &amp; Automation</h1>
+              <p class="section-subtitle">Testing workflows and environments</p>
+            </div>
+          </div>
+          <p>To execute the above tests efficiently, we leverage various tools and establish a clear QA process integrated into our development pipeline:</p>
+          <ul>
+            <li><strong>Test Environment:</strong> We maintain a dedicated staging environment that closely mirrors production (same database type, similar configurations for email and AI, but using test API keys or sandboxes where possible). Before each release candidate, we deploy to staging and run our full regression test suite here. This environment also populates with sample data (e.g., dummy candidates and references) for use in manual testing without risking real data. It’s configured to not accidentally send emails to real people (we either use a dummy email domain or enable a “dry-run” mode for email sending when needed).</li>
+            <li><strong>Automated Test Suite:</strong> Our CI pipeline includes running automated tests on every push. This includes unit tests for core logic (e.g., functions that format emails, or the AI-prompts logic), integration tests via API (we use a Node script or Postman collection to simulate flows at the API level), and soon an end-to-end test (using a headless browser to click through the app). While the E2E might run less frequently (maybe nightly) due to time, unit and API tests run on each commit, catching regressions quickly. If any test fails, the build is marked failed and developers address it before merging – this keeps the main branch stable.</li>
+            <li><strong>Issue Tracking:</strong> We use a tracking system (e.g., Jira or Trello) to log every bug found during testing, with severity labels. Our process is to triage within 24 hours: critical bugs (e.g., form cannot be submitted) are fixed immediately (same sprint), while minor ones (typo in email, slight UI misalignment) are scheduled appropriately. Nothing reported in testing is ignored; even if we decide not to fix a minor issue for launch, it is documented and communicated.</li>
+            <li><strong>Regression and Smoke Tests:</strong> Before any major deploy (e.g., the beta release, and the final production launch), we run a “smoke test” checklist: can we log in, send an invite, and complete a reference? This ensures the major path is clear. Additionally, after bug fixes, we do targeted regression testing around those areas (for example, if we fixed a bug with special characters in names causing email issues, we retest various names in invites). Over time, our suite of test cases will grow, and we aim to automate as many regression tests as possible to speed up future releases.</li>
+            <li><strong>Continuous Monitoring Post-Launch:</strong> Though technically post-release, it’s worth mentioning: we will keep quality in check after launch via monitoring tools. As described in the Implementation Plan, we have error logging (like Sentry) hooked in – if any error occurs in production that wasn’t caught in testing, we’ll get an alert. Our team is prepared to respond quickly even after v1.0 goes live, treating initial weeks as an extension of our QA process with real user data (with proper precautions to handle issues swiftly via hotfixes if needed).</li>
+          </ul>
+          <p>By combining these tools and processes, we integrate QA into our development cycle rather than leaving it as a final hurdle. The result is higher confidence in each release and the ability to iterate rapidly without sacrificing stability.</p>
+        </section>
+        <!-- Acceptance Criteria & Definition of Done -->
+        <section id="def-of-done" class="section">
+          <div class="section-header">
+            <div class="icon">DD</div>
+            <div>
+              <h1 class="section-title">Acceptance Criteria &amp; Definition of Done</h1>
+              <p class="section-subtitle">When do we consider testing complete?</p>
+            </div>
+          </div>
+          <p>To clearly signal when RefCheck v1.0 is ready for release, we establish a “Definition of Done” for the product. This compiles all the quality gates that must be passed:</p>
+          <ul>
+            <li>**All priority user stories met:** Every P0 and P1 user story (from the User Stories document) has been implemented and has passed its acceptance criteria tests. We have a checklist mapping each story to tests or demo steps, all checked off.</li>
+            <li>**No critical defects:** There are no open critical or high-severity bugs. “Critical” means anything that prevents main workflows (e.g., references can’t submit, data is corrupted, security vulnerability). If any medium or low bugs are deferred, it’s explicitly approved by the product owner, and none of them substantially degrade the user experience or security.</li>
+            <li>**Performance within acceptable range:** Our load tests indicate the system can handle at least 2x the anticipated initial load (to give buffer) without timeouts or crashes. Page load times and key interaction times meet the targets (e.g., reference form loads &lt; 3s on average network, AI summary appears within ~10s). If any metrics are borderline, we’ve documented them and decision is made they’re okay for v1 but will improve later.</li>
+            <li>**Security checks passed:** All issues from security testing are resolved or mitigated. We have HTTPS enforced, no sensitive data leaks, and we’ve done a security review sign-off. The definition of done includes that the team lead or a security expert has reviewed logs and configuration (CSP, CORS, encryption keys in place) and approved.</li>
+            <li>**UAT sign-off:** The beta users (or internal stakeholder acting as user proxy) have signed off that the product is usable and meets the needs outlined. This often is a formal step where the product manager might say “We have satisfied the problem statements in the PRD” and the stakeholders agree. It’s partly subjective, but basically, no one is saying “we can’t launch because X is inadequate.”</li>
+            <li>**Documentation &amp; support ready:** Though not a test of code, it’s part of done: user documentation (quick start guide, FAQ for any tricky parts like “what if a reference declines”) is prepared. The team has also prepared a support plan (e.g., how to handle any issues that come through in the first days – we have devs on call, etc.). This ensures that if users encounter something, we can guide them, which is an aspect of quality too.</li>
+          </ul>
+          <p>Once all these criteria are met, we can confidently declare RefCheck v1.0 as done and ready for release. If any criterion is not met, we either extend testing and development to address it or explicitly defer it and communicate that in release notes (for minor items). The Definition of Done is essentially our quality gate – it prevents us from shipping prematurely and aligns the team on what “ready” truly means.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Off-canvas sidebar for mobile -->
+  <div class="backdrop" id="backdrop" hidden="" aria-hidden="true"></div>
+  <aside class="sidebar-drawer" id="toc-drawer" aria-hidden="true" aria-label="Navigation menu">
+    <nav class="sidebar" aria-label="Table of contents (mobile)">
+      <div class="nav-title">📑 Table of Contents</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link active" href="#qa-approach">QA Approach &amp; Objectives</a></li>
+        <li class="nav-item"><a class="nav-link" href="#test-types">Test Types &amp; Coverage</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#data-validation">Data Validation Testing</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#integration-testing">Integration &amp; E2E Testing</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#performance-testing">Performance &amp; Load Testing</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#security-testing">Security &amp; Privacy Testing</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#email-testing">Email Deliverability Testing</a></li>
+          <li class="nav-item" style="margin-left:16px"><a class="nav-link" href="#uat">User Acceptance Testing (UAT)</a></li>
+        <li class="nav-item"><a class="nav-link" href="#tools-process">Tools, Process &amp; Automation</a></li>
+        <li class="nav-item"><a class="nav-link" href="#def-of-done">Acceptance Criteria &amp; Definition of Done</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <script>
+    (function() {
+      'use strict';
+      const links = Array.from(document.querySelectorAll('.nav-link'));
+      const sections = Array.from(document.querySelectorAll('section.section, .section'));
+      const menuBtn = document.querySelector('.menu-btn');
+      const drawer = document.getElementById('toc-drawer');
+      const backdrop = document.getElementById('backdrop');
+      let ticking = false;
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveLink);
+          ticking = true;
+        }
+      }
+      function updateActiveLink() {
+        const offset = 120;
+        let current = sections[0]?.id || '';
+        for (const section of sections) {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= offset) current = section.id || current;
+        }
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === '#' + current;
+          link.classList.toggle('active', isActive);
+        });
+        ticking = false;
+      }
+      function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          backdrop.classList.add('show');
+          menuBtn?.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.classList.remove('show');
+        menuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => { backdrop.hidden = true; }, 250);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      });
+      menuBtn?.addEventListener('click', openDrawer);
+      backdrop?.addEventListener('click', closeDrawer);
+      drawer?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.classList && t.classList.contains('nav-link')) closeDrawer();
+      });
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href') || '';
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.slice(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              const offset = 80;
+              const top = target.offsetTop - offset;
+              window.scrollTo({ top, behavior: 'smooth' });
+              history.pushState(null, '', href);
+            }
+          }
+        });
+      });
+      window.addEventListener('scroll', requestTick, { passive: true });
+      updateActiveLink();
+    })();
+  </script>
+
+
+</body></html>
